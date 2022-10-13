@@ -1,11 +1,30 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
+import { PrismaService } from './prisma/prisma.service';
+import { JwtMiddleWare } from './middlewares/jwt.middleware';
+import { JwtService } from '@nestjs/jwt';
+import { GoodsModule } from './context/goods/goods.module';
+import { AccountsModule } from './context/accounts/accounts.module';
 
 @Module({
-  imports: [UsersModule],
+  imports: [GoodsModule, AccountsModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService, JwtService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JwtMiddleWare)
+      .forRoutes
+      // { path: 'post/*', method: RequestMethod.POST },
+      // { path: 'post/*', method: RequestMethod.PATCH },
+      // { path: 'post/*', method: RequestMethod.DELETE },
+      ();
+  }
+}
