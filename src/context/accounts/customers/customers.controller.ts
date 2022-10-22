@@ -14,7 +14,7 @@ export class CustomersController {
 
   @Post('sign-in')
   signIn(@Body() signInDto : SignInDto) {
-    return this.customersService.signIn(signInDto)
+    return this.customersService.customerSignIn(signInDto)
   }
 }
 

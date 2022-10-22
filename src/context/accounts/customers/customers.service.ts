@@ -1,3 +1,4 @@
+import { ROLE } from 'src/constant/account.constant';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Customer, SignInDto } from './dto/customer.dto';
 import {
@@ -6,13 +7,15 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken'
+import {JwtPayload, sign} from 'jsonwebtoken'
 @Injectable()
 export class CustomersService {
   constructor(private prismaService: PrismaService) {}
   async customerSignup(customer: Customer, customerSignUpSecret: string) {
     const { email, password, nickname, age, activity, gender, provider } =
       customer;
+    
+    console.log(customer)
     const CUSTOMER_PASSWORD_SALT = parseInt(process.env.CUSTOMER_PASSWORD_SALT);
 
     if (customerSignUpSecret !== process.env.CUSTOMER_SIGNUP_SECRET)
@@ -41,7 +44,7 @@ export class CustomersService {
     return { result: _customer, message: '회원가입 완료' };
   }
 
-  async signIn(signInDto : SignInDto) {
+  async customerSignIn(signInDto : SignInDto) {
     const{ email, password} = signInDto;
     const customer = await this.prismaService.customer.findUnique({
       where: { email },
@@ -56,13 +59,19 @@ export class CustomersService {
       throw new BadRequestException();
     }
 
+    const payload: JwtPayload = {
+      sub: customer.email,
+      role: ROLE.CUSTOMER,
+      username: customer.nickname,
+    };
+
  
-    // const accsetoken = jwt.sign({ email: customer.email,  }, process.env.CUSTOMER_JWT_SECRET, {
-    // expiresIn: 60 * 60 * 3, //60초 * 60분 * 3시 이므로, 3시간 유효한 토큰 발급
-    // });
+    const secret = process.env.CUSTOMER_JWT_SECRET ;
+    const expiresIn = '3h';
+    const token = sign(payload, secret, { expiresIn });
 
     
-    return { result: email, message: 'Login success' };
+    return { result: token, message: 'Login success' };
   }
 }
 //TODO 로그인, 토큰을 쿠키에 담아서 로그인 상태 유지 하기 
