@@ -1,4 +1,4 @@
-name: Good_job CD
+name: Upick CICD
 
 # main branch에 push 되면 실행
 on:
