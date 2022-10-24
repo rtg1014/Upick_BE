@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: ['14.20.1']
+        node-version: ['16.18.0']
     steps:
       - name: Deploy
         uses: appleboy/ssh-action@master
@@ -23,6 +23,8 @@ jobs:
           script: |
             cd /home/${{ secrets.REMOTE_USERNAME }}/Upick_BE
             sudo git pull origin main
+            node -v
+            npm -v
             npm ci
             npx prisma db pull
             npx prisma generate
