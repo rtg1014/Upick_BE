@@ -22,10 +22,9 @@ jobs:
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             cd /home/ubuntu/Upick_BE
+            npx pm2 kill
             sudo git pull origin main
-            npm -v
-            node -v
-            npm ci
+            npm install -production
             npx prisma db pull
             npx prisma generate
             npm run build
