@@ -23,8 +23,6 @@ jobs:
           script: |
             cd /home/${{ secrets.REMOTE_USERNAME }}/Upick_BE
             sudo git pull origin main
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
             npm ci
             npx prisma db pull
             npx prisma generate
