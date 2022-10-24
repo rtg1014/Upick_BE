@@ -21,10 +21,10 @@ jobs:
           password: ${{ secrets.REMOTE_PASSWORD }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            cd /home/${{ secrets.REMOTE_USERNAME }}/Upick_BE
+            cd /home/ubuntu/Upick_BE
             sudo git pull origin main
-            node -v
             npm -v
+            node -v
             npm ci
             npx prisma db pull
             npx prisma generate
