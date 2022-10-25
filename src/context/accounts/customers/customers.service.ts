@@ -14,7 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
 import * as qs from 'qs';
 import axios from 'axios';
-import { Provider, Customer, prisma } from '@prisma/client';
+import { Provider, Customer } from '@prisma/client';
 @Injectable()
 export class CustomersService {
   constructor(private prismaService: PrismaService) {}
@@ -119,7 +119,3 @@ export class CustomersService {
     return token;
   }
 }
-//TODO 로그인, 토큰을 쿠키에 담아서 로그인 상태 유지 하기
-// 궁국적으로 약사만 글을 쓸수 있게
-// ci-cd 관심은(깃허브액션 사용) 있으나 도저언!!
-// 로그인까지 해보고 깃헙액션 공부
