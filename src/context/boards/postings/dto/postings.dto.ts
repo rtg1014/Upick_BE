@@ -3,3 +3,7 @@ export interface Posting {
   content: string;
   tags?: string[];
 }
+
+export interface CreatePostingDto extends Posting {
+  merchandiseId: number;
+}

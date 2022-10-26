@@ -9,7 +9,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { PostingsService } from './postings.service';
-import { Posting } from './dto/postings.dto';
+import { Posting, CreatePostingDto } from './dto/postings.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { ROLE } from 'src/constant/account.constant';
 import { Pharmacist } from 'src/decorators/pharmacist.decorator';
@@ -22,10 +22,10 @@ export class PostingsController {
   @Post('')
   @Roles(ROLE.PHARMACIST) // 가드의 역할: 토큰을 해독해 pharmacist인지 customer인지 확인
   createPosting(
-    @Body() posting: Posting,
+    @Body() createPostingDto: CreatePostingDto,
     @Pharmacist() pharmacist: TPharmacist, // 데코레이터의 역할: 토큰을 해독해 토큰값에 해당하는 pharmacist (혹은 customer)를 가져옴
   ) {
-    return this.postingsService.createPosting(posting, pharmacist);
+    return this.postingsService.createPosting(createPostingDto, pharmacist);
   }
 
   @Get(':id')
