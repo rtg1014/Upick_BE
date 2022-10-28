@@ -6,3 +6,9 @@ export interface CreateMerchandiseDto {
   imageToUpload: Express.Multer.File[];
   merchandiseHowToConsume: string;
 }
+
+export interface CreateCommentDto {
+  positive: string;
+  negative: string;
+  rating: number;
+}

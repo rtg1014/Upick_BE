@@ -7,5 +7,6 @@ import { ImagesService } from 'src/context/common/images/images.service';
 @Module({
   controllers: [MerchandisesController],
   providers: [MerchandisesService, PrismaService, ImagesService],
+  exports: [ImagesService],
 })
 export class MerchandisesModule {}

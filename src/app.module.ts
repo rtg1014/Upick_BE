@@ -9,6 +9,7 @@ import { BoardsModule } from './context/boards/boards.module';
 import { RolesGuard } from './guard/role.guard';
 import { InjectAccountMiddleware } from './middlewares/injectAccount.middleware';
 import { CommonModule } from './context/common/common.module';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CommonModule } from './context/common/common.module';
     AccountsModule,
     BoardsModule,
     CommonModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],

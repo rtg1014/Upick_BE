@@ -19,38 +19,38 @@ model Customer {
   updatedAt        DateTime           @updatedAt
   providerId       String?
   provider         Provider
-  postingLikes     PostingLikes[]
   MerchandiseLikes MerchandiseLikes[]
   PharmacistLikes  PharmacistLikes[]
+  postingLikes     PostingLikes[]
 
   @@unique([provider, providerId])
 }
 
 model Pharmacist {
-  id                  Int                  @id @default(autoincrement())
-  email               String               @unique
+  id                  Int               @id @default(autoincrement())
+  email               String            @unique
   password            String?
   pharmacyName        String
   pharmacyAddress     String
   counselingStartTime String?
   counselingEndTime   String?
   userName            String
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  Posting             Posting[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
   Image               Image[]
   PharmacistLikes     PharmacistLikes[]
-  MerchandiseComment  MerchandiseComment[]
+  Posting             Posting[]
+  Comment             Comment[]
 }
 
 model PharmacistLikes {
   id           Int        @id @default(autoincrement())
   pharmacistId Int
   customerId   Int
-  pharmacist   Pharmacist @relation(fields: [pharmacistId], references: [id])
-  customer     Customer   @relation(fields: [customerId], references: [id])
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  customer     Customer   @relation(fields: [customerId], references: [id])
+  pharmacist   Pharmacist @relation(fields: [pharmacistId], references: [id])
 }
 
 model Posting {
@@ -60,20 +60,20 @@ model Posting {
   pharmacistId  Int
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  merchandiseId Int
+  merchandise   Merchandise    @relation(fields: [merchandiseId], references: [id])
   pharmacist    Pharmacist     @relation(fields: [pharmacistId], references: [id])
   postingLikes  PostingLikes[]
   PostingToTag  PostingToTag[]
-  merchandise   Merchandise    @relation(fields: [merchandiseId], references: [id])
-  merchandiseId Int
 }
 
 model Tag {
   id                Int                 @id @default(autoincrement())
-  name              String
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
-  PostingToTag      PostingToTag[]
+  name              String              
   MerchandiseEffect MerchandiseEffect[]
+  PostingToTag      PostingToTag[]
 }
 
 model PostingToTag {
@@ -97,55 +97,40 @@ model PostingLikes {
   @@id([postingId, customerId])
 }
 
-enum Provider {
-  local
-  kakao
-}
-
 model Merchandise {
-  id                      Int                       @id @default(autoincrement())
-  companyId               Int
-  company                 Company                   @relation(fields: [companyId], references: [id])
-  name                    String
-  certification           Boolean                   @default(false)
-  createdAt               DateTime                  @default(now())
-  updatedAt               DateTime                  @updatedAt
-  rating                  Int
-  Image                   Image[]
-  MerchandiseLikes        MerchandiseLikes[]
-  Posting                 Posting[]
-  MerchandiseEffect       MerchandiseEffect[]
-  MerchandiseHowToConsume MerchandiseHowToConsume[]
-  MerchandiseComment      MerchandiseComment[]
-}
-
-model MerchandiseComment {
-  id            Int         @id @default(autoincrement())
-  pharmacist    Pharmacist  @relation(fields: [pharmacistId], references: [id])
-  pharmacistId  Int
-  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
-  merchandiseId Int
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id                        Int                     @id @default(autoincrement())
+  companyId                 Int
+  company                   Company                 @relation(fields: [companyId], references: [id])
+  name                      String
+  certification             Boolean                 @default(false)
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
+  rating                    Float
+  Image                     Image[]
+  MerchandiseLikes          MerchandiseLikes[]
+  Posting                   Posting[]
+  MerchandiseEffect         MerchandiseEffect[]
+  merchandiseHowToConsume   MerchandiseHowToConsume @relation(fields: [merchandiseHowToConsumeId], references: [id])
+  merchandiseHowToConsumeId Int
+  Comment                   Comment[]
 }
 
 model MerchandiseHowToConsume {
-  id            Int         @id @default(autoincrement())
-  consumption   String
-  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
-  merchandiseId Int         @unique
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id          Int           @id @default(autoincrement())
+  consumption String
+  merchandise Merchandise[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 model MerchandiseEffect {
   id            Int         @id @default(autoincrement())
   merchandiseId Int
   tagId         Int
-  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
-  tag           Tag         @relation(fields: [tagId], references: [id])
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
+  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
+  tag           Tag         @relation(fields: [tagId], references: [id])
 }
 
 model MerchandiseLikes {
@@ -154,8 +139,8 @@ model MerchandiseLikes {
   customerId    Int
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  merchandse    Merchandise @relation(fields: [merchandiseId], references: [id])
   customer      Customer    @relation(fields: [customerId], references: [id])
+  merchandse    Merchandise @relation(fields: [merchandiseId], references: [id])
 
   @@unique([merchandiseId, customerId])
 }
@@ -163,18 +148,37 @@ model MerchandiseLikes {
 model Company {
   id          Int           @id @default(autoincrement())
   name        String
-  Merchandise Merchandise[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  Merchandise Merchandise[]
 }
 
 model Image {
   id            Int          @id @default(autoincrement())
+  key           String
   url           String
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  merchandise   Merchandise? @relation(fields: [merchandiseId], references: [id])
   merchandiseId Int?         @unique
-  pharmacist    Pharmacist?  @relation(fields: [pharmacistId], references: [id])
   pharmacistId  Int?
+  merchandise   Merchandise? @relation(fields: [merchandiseId], references: [id])
+  pharmacist    Pharmacist?  @relation(fields: [pharmacistId], references: [id])
+}
+
+model Comment {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  positive      String
+  negative      String
+  rating        Int
+  pharmacistId  Int
+  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
+  Pharmacist    Pharmacist  @relation(fields: [pharmacistId], references: [id])
+  merchandiseId Int
+}
+
+enum Provider {
+  local
+  kakao
 }
