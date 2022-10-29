@@ -13,7 +13,10 @@ import { ROLE } from 'src/constant/account.constant';
 import { Roles } from 'src/decorators/roles.decorator';
 import { TransformMerchandisesCreateMerchandiseRequestDtoPipe } from './merchandises.pipe';
 import { MerchandisesService } from './merchandises.service';
-import { CreateCommentDto } from './dto/merchandise.dto';
+import {
+  CreateCommentDto,
+  CreateMerchandiseFromCrawlerDto,
+} from './dto/merchandise.dto';
 import { Pharmacist } from 'src/decorators/pharmacist.decorator';
 
 @Controller('goods/merchandises')
@@ -44,6 +47,16 @@ export class MerchandisesController {
     return this.merchandisesService.createMerchandiseEffects(
       merchandiseId,
       effects,
+    );
+  }
+
+  @Post('test')
+  @Roles(ROLE.PHARMACIST)
+  createMerchandiseFromCrawler(
+    @Body() createMerchandiseFromCrawlerDto: CreateMerchandiseFromCrawlerDto,
+  ) {
+    return this.merchandisesService.createMerchandiseFromCrawler(
+      createMerchandiseFromCrawlerDto,
     );
   }
 

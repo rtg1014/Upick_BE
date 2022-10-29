@@ -2,7 +2,10 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Pharmacist, Prisma } from '@prisma/client';
 import { ImagesService } from 'src/context/common/images/images.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateCommentDto } from './dto/merchandise.dto';
+import {
+  CreateCommentDto,
+  CreateMerchandiseFromCrawlerDto,
+} from './dto/merchandise.dto';
 
 @Injectable()
 export class MerchandisesService {
@@ -15,7 +18,6 @@ export class MerchandisesService {
     merchandiseCreateWithoutImageInput: Prisma.MerchandiseCreateWithoutImageInput,
     imageToUpload: Express.Multer.File,
   ) {
-    
     // merchandiseHowToConsume upsert
     const existingMerchandiseHowToConsume =
       await this.prismaService.merchandiseHowToConsume.findFirst({
@@ -61,6 +63,23 @@ export class MerchandisesService {
     return { result: merchandise, message: '상품 생성 완료' };
   }
 
+  async createMerchandiseFromCrawler(
+    createMerchandiseFromCrawlerDto: CreateMerchandiseFromCrawlerDto,
+  ) {
+    const {
+      certification,
+      company,
+      merchandiseEffects,
+      merchandiseHowToConsume,
+      name,
+      rating,
+    } = createMerchandiseFromCrawlerDto;
+
+    // const createdMerchandise =
+
+    // return { result: merchandise, message: '상품 생성 완료' };
+  }
+
   async createMerchandiseEffects(merchandiseId: number, effects: string[]) {
     const promises = [];
 
@@ -70,18 +89,20 @@ export class MerchandisesService {
       });
       if (existingTag)
         promises.push(
-          this.prismaService.tag.update({
-            where: { id: existingTag.id },
-            data: { MerchandiseEffect: { connect: { id: merchandiseId } } },
+          this.prismaService.merchandiseEffect.create({
+            data: { merchandiseId, tagId: existingTag.id },
           }),
         );
-      else
+      else {
+        const createdTag = await this.prismaService.tag.create({
+          data: { name: effect },
+        });
         promises.push(
-          this.prismaService.tag.create({
-            data: { name: effect },
-            include: { MerchandiseEffect: { where: { id: merchandiseId } } },
+          this.prismaService.merchandiseEffect.create({
+            data: { merchandiseId, tagId: createdTag.id },
           }),
         );
+      }
     }
     const merchandiseEffects = await Promise.all(promises);
 

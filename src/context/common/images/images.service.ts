@@ -11,7 +11,7 @@ export class ImagesService {
   ) {}
 
   async create(file: Express.Multer.File) {
-    console.log(file.originalname)
+    console.log(file.originalname);
     const fileName = uuidv4();
     const ext = file.originalname.split('.')[0];
     const key = `${fileName}.${ext}`;

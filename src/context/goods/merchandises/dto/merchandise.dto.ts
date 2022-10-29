@@ -12,3 +12,12 @@ export interface CreateCommentDto {
   negative: string;
   rating: number;
 }
+
+export interface CreateMerchandiseFromCrawlerDto {
+  company: string;
+  rating: string;
+  name: string;
+  certification: string;
+  merchandiseHowToConsume: string;
+  merchandiseEffects: string[];
+}
