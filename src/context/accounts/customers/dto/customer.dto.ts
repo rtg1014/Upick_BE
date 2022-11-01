@@ -16,3 +16,5 @@ export interface SignInKakaoRequestDto {
   code: string;
   redirectUri: string;
 }
+
+// export interface MedicalDto {}

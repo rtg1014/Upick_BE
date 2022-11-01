@@ -22,8 +22,19 @@ model Customer {
   MerchandiseLikes MerchandiseLikes[]
   PharmacistLikes  PharmacistLikes[]
   postingLikes     PostingLikes[]
+  Medical          Medical[]
 
   @@unique([provider, providerId])
+}
+
+model Medical {
+  id            Int         @id @default(autoincrement())
+  customerId    Int
+  merchandiseId Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
 }
 
 model Pharmacist {
@@ -112,7 +123,8 @@ model Merchandise {
   Image                     Image?
   MerchandiseEffect         MerchandiseEffect[]
   MerchandiseLikes          MerchandiseLikes[]
-  Posting                    Posting[]
+  Posting                   Posting[]
+  Medical                   Medical[]
 }
 
 model MerchandiseHowToConsume {
@@ -140,7 +152,7 @@ model MerchandiseLikes {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   customer      Customer    @relation(fields: [customerId], references: [id])
-  merchandise    Merchandise @relation(fields: [merchandiseId], references: [id])
+  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
 
   @@unique([merchandiseId, customerId])
 }
