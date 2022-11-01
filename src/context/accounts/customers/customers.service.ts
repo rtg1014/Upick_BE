@@ -14,7 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
 import * as qs from 'qs';
 import axios from 'axios';
-import { Provider, Customer } from '@prisma/client';
+import { Provider, Customer, Merchandise } from '@prisma/client';
 @Injectable()
 export class CustomersService {
   constructor(private prismaService: PrismaService) {}
@@ -122,4 +122,16 @@ export class CustomersService {
 
     return token;
   }
+
+  async getMedicine() {
+    const medicine = await this.prismaService.merchandise.findMany({});
+    return { result: medicine, message: 'success' };
+  }
+
+  // async patchMedicine(id: number, customerId: number) {
+  //   const merchandiseId = id;
+  //   const patch = await this.prismaService.medical.findUnique({});
+  // }
+
+  //
 }
