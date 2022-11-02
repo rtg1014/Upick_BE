@@ -22,19 +22,19 @@ model Customer {
   MerchandiseLikes MerchandiseLikes[]
   PharmacistLikes  PharmacistLikes[]
   postingLikes     PostingLikes[]
-  Medical          Medical[]
+  Disease          Disease[]
+  TakingMedicine   TakingMedicine[]
+  CustomerToTag    CustomerToTag[]
 
   @@unique([provider, providerId])
 }
 
-model Medical {
-  id            Int         @id @default(autoincrement())
-  customerId    Int
-  merchandiseId Int
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  customer      Customer    @relation(fields: [customerId], references: [id])
-  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
+model Disease {
+  id         Int      @id @default(autoincrement())
+  customerId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  customer   Customer @relation(fields: [customerId], references: [id])
 }
 
 model Pharmacist {
@@ -85,6 +85,17 @@ model Tag {
   name              String
   MerchandiseEffect MerchandiseEffect[]
   PostingToTag      PostingToTag[]
+  CustomerToTag     CustomerToTag[]
+}
+
+model CustomerToTag {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  tagId      Int
+  customerId Int
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
 }
 
 model PostingToTag {
@@ -124,7 +135,7 @@ model Merchandise {
   MerchandiseEffect         MerchandiseEffect[]
   MerchandiseLikes          MerchandiseLikes[]
   Posting                   Posting[]
-  Medical                   Medical[]
+  TakingMedicine            TakingMedicine[]
 }
 
 model MerchandiseHowToConsume {
@@ -193,4 +204,16 @@ model Comment {
 enum Provider {
   local
   kakao
+}
+
+model TakingMedicine {
+  id            Int         @id @default(autoincrement())
+  customerId    Int
+  merchandiseId Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
+  customer      Customer    @relation(fields: [customerId], references: [id])
+
+  @@unique([merchandiseId, customerId])
 }
