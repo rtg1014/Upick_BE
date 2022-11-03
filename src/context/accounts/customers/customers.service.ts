@@ -1,10 +1,6 @@
 import { ROLE } from 'src/constant/account.constant';
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  Customer as TCustomer,
-  SignInDto,
-  SignInKakaoRequestDto,
-} from './dto/customer.dto';
+import { SignInDto, SignInKakaoRequestDto } from './dto/customer.dto';
 import {
   Injectable,
   InternalServerErrorException,
@@ -14,13 +10,13 @@ import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
 import * as qs from 'qs';
 import axios from 'axios';
-import { Provider, Customer, Merchandise } from '@prisma/client';
+import { Provider, Customer } from '@prisma/client';
 @Injectable()
 export class CustomersService {
   constructor(private prismaService: PrismaService) {}
-  async customerSignup(customer: TCustomer, customerSignUpSecret: string) {
-    const { email, password, nickname, age, gender } = customer;
 
+  async customerSignup(customer: Customer, customerSignUpSecret: string) {
+    const { email, password, nickname, age, gender } = customer;
     const CUSTOMER_PASSWORD_SALT = parseInt(process.env.CUSTOMER_PASSWORD_SALT);
 
     if (customerSignUpSecret !== process.env.CUSTOMER_SIGNUP_SECRET)
@@ -29,10 +25,9 @@ export class CustomersService {
     const isExist = await this.prismaService.customer.findFirst({
       where: { email },
     });
-    if (isExist) throw new InternalServerErrorException();
+    if (isExist) throw new InternalServerErrorException(`It's existing email`);
 
     const hashedPassword = await bcrypt.hash(password, CUSTOMER_PASSWORD_SALT);
-
     const _customer = await this.prismaService.customer.create({
       data: {
         email,
@@ -123,15 +118,22 @@ export class CustomersService {
     return token;
   }
 
-  async getMedicine() {
-    const medicine = await this.prismaService.merchandise.findMany({});
-    return { result: medicine, message: 'success' };
+  async addTakingMedicine(merchandiseId: number, customer: Customer) {
+    const addedTakingMedicine = await this.prismaService.takingMedicine.create({
+      data: { customerId: customer.id, merchandiseId },
+    });
+
+    return { result: addedTakingMedicine, message: '복용중인 약 추가 완료!' };
   }
 
-  // async patchMedicine(id: number, customerId: number) {
-  //   const merchandiseId = id;
-  //   const patch = await this.prismaService.medical.findUnique({});
-  // }
+  async deleteTakingMedicine(merchandiseId: number, customer: Customer) {
+    const deletedTakingMedicine =
+      await this.prismaService.takingMedicine.delete({
+        where: {
+          merchandiseId_customerId: { customerId: customer.id, merchandiseId },
+        },
+      });
 
-  //
+    return { result: deletedTakingMedicine, message: '복용중인 약 삭제 완료!' };
+  }
 }

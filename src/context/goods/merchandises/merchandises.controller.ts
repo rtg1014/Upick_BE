@@ -120,11 +120,6 @@ export class MerchandisesController {
     );
   }
 
-  @Get('/:merchandiseId')
-  getMerchandise(@Param('merchandiseId', ParseIntPipe) merchandiseId: number) {
-    return this.merchandisesService.getMerchandise(merchandiseId);
-  }
-
   @Put('/:merchandiseId/like')
   @Roles(ROLE.CUSTOMER)
   toggleLike(
@@ -142,5 +137,16 @@ export class MerchandisesController {
     return this.merchandisesService.getMerchandisesByLikesFilteringAge(
       getMerchandisesByLikesFilteringAgeDto,
     );
+  }
+
+  @Get('search/:keyword')
+  @Roles(ROLE.CUSTOMER)
+  searchMerchandise(@Param('keyword') keyword: string) {
+    return this.merchandisesService.searchMerchandise(keyword);
+  }
+
+  @Get('/:merchandiseId')
+  getMerchandise(@Param('merchandiseId', ParseIntPipe) merchandiseId: number) {
+    return this.merchandisesService.getMerchandise(merchandiseId);
   }
 }

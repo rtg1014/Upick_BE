@@ -1,19 +1,18 @@
-import { Merchandise } from '@prisma/client';
 import {
   Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
+  Delete,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
-import {
-  Customer as TCustomer,
-  SignInDto,
-  SignInKakaoRequestDto,
-} from './dto/customer.dto';
+import { SignInDto, SignInKakaoRequestDto } from './dto/customer.dto';
+import { Customer } from 'src/decorators/customer.decorator';
+import { Customer as TCustomer } from '@prisma/client';
+import { Roles } from 'src/decorators/roles.decorator';
+import { ROLE } from 'src/constant/account.constant';
 
 @Controller('customers')
 export class CustomersController {
@@ -34,16 +33,21 @@ export class CustomersController {
     return this.customersService.signInKakao(signInKakaoRequestDto);
   }
 
-  @Get('my-pick/takenmedicine')
-  getMedicine() {
-    return this.customersService.getMedicine();
+  @Post('my-pick/taking-medicine/:merchandiseId')
+  @Roles(ROLE.CUSTOMER)
+  addTakingMedicine(
+    @Param('merchandiseId', ParseIntPipe) merchandiseId: number,
+    @Customer() customer: TCustomer,
+  ) {
+    return this.customersService.addTakingMedicine(merchandiseId, customer);
   }
 
-  @Patch('my-pick/:merchandiseId')
-  patchMedicine(
+  @Delete('my-pick/taking-medicine/:merchandiseId')
+  @Roles(ROLE.CUSTOMER)
+  deleteTakingMedicine(
     @Param('merchandiseId', ParseIntPipe) merchandiseId: number,
-    @Body('customerId') customerId: number,
+    @Customer() customer: TCustomer,
   ) {
-    return this.customersService.patchMedicine(merchandiseId, customerId);
+    return this.customersService.deleteTakingMedicine(merchandiseId, customer);
   }
 }

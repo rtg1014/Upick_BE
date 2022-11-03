@@ -277,4 +277,29 @@ export class MerchandisesService {
       message: `${minAge}세 ~ ${maxAge}세 인기 상품`,
     };
   }
+
+  async searchMerchandise(keyword: string) {
+    const merchandises = await this.prismaService.merchandise.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: keyword,
+            },
+          },
+          {
+            MerchandiseEffect: {
+              some: { tag: { name: { contains: keyword } } },
+            },
+          },
+          {
+            company: { name: { contains: keyword } },
+          },
+        ],
+      },
+      include: { MerchandiseEffect: { select: { tag: true } }, company: true },
+    });
+
+    return { result: merchandises, message: `'${keyword}' 로 검색 완료~!` };
+  }
 }
