@@ -5,10 +5,15 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Patch,
   Delete,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
-import { SignInDto, SignInKakaoRequestDto } from './dto/customer.dto';
+import {
+  SignInDto,
+  SignInKakaoRequestDto,
+  UpdateCustomerDto,
+} from './dto/customer.dto';
 import { Customer } from 'src/decorators/customer.decorator';
 import { Customer as TCustomer } from '@prisma/client';
 import { Roles } from 'src/decorators/roles.decorator';
@@ -49,5 +54,14 @@ export class CustomersController {
     @Customer() customer: TCustomer,
   ) {
     return this.customersService.deleteTakingMedicine(merchandiseId, customer);
+  }
+
+  @Patch('my-pick/details')
+  @Roles(ROLE.CUSTOMER)
+  updateCustomer(
+    @Customer() customer: TCustomer,
+    @Body() updateCustomerDto: UpdateCustomerDto,
+  ) {
+    return this.customersService.updateCustomer(customer, updateCustomerDto);
   }
 }
