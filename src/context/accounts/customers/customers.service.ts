@@ -1,6 +1,10 @@
 import { ROLE } from 'src/constant/account.constant';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { SignInDto, SignInKakaoRequestDto } from './dto/customer.dto';
+import {
+  SignInDto,
+  SignInKakaoRequestDto,
+  UpdateCustomerDto,
+} from './dto/customer.dto';
 import {
   Injectable,
   InternalServerErrorException,
@@ -16,7 +20,7 @@ export class CustomersService {
   constructor(private prismaService: PrismaService) {}  
 
   async customerSignup(customer: Customer, customerSignUpSecret: string) {
-    const { email, password, nickname, age, gender } = customer;
+    const { email, password, name, age, gender } = customer;
     const CUSTOMER_PASSWORD_SALT = parseInt(process.env.CUSTOMER_PASSWORD_SALT);
 
     if (customerSignUpSecret !== process.env.CUSTOMER_SIGNUP_SECRET)
@@ -32,12 +36,9 @@ export class CustomersService {
       data: {
         email,
         password: hashedPassword,
-        nickname,
+        name,
         provider: Provider.local,
         age,
-      
-        //TODO 성현 : age 랑 gender 는 원래는 필수값이 아니지만 지금은 유저정보 변경 api 가 없어서
-        //      우선 필수값으로 넣겠습니다. 추후 회원정보 변경 api 만들시 원래대로 돌려놓겟습니다
       },
     });
     delete _customer.password;
@@ -135,5 +136,69 @@ export class CustomersService {
       });
 
     return { result: deletedTakingMedicine, message: '복용중인 약 삭제 완료!' };
+  }
+
+  async updateCustomer(
+    customer: Customer,
+    updateCustomerDto: UpdateCustomerDto,
+  ) {
+    const {
+      name,
+      age,
+      gender,
+      isPregnant,
+      isBreastFeed,
+      tagIds,
+      medicineNames,
+      stroke,
+      heartDisease,
+      highBloodPressure,
+      diabetes,
+      etc,
+      takingExcerciseTimePerAWeek,
+      memo,
+    } = updateCustomerDto;
+
+    const customerToTagCreateManyInput = tagIds.map((num) => {
+      return { tagId: num };
+    });
+    const merchandiseIdsByMedicineName =
+      await this.prismaService.merchandise.findMany({
+        where: { name: { in: medicineNames } },
+        select: { id: true },
+      });
+    const takingMedicineCreateManyInput = merchandiseIdsByMedicineName.map(
+      (e) => {
+        return { merchandiseId: e.id };
+      },
+    );
+
+    const updatedCustomer = await this.prismaService.customer.update({
+      where: { id: customer.id },
+      data: {
+        name,
+        age,
+        gender,
+        isPregnant,
+        isBreastFeed,
+        CustomerToTag: { createMany: { data: customerToTagCreateManyInput } },
+        TakingMedicine: {
+          createMany: { data: takingMedicineCreateManyInput },
+        },
+        CustomerDetails: {
+          create: {
+            stroke,
+            diabetes,
+            heartDisease,
+            highBloodPressure,
+            etc,
+            takingExcerciseTimePerAWeek,
+            memo,
+          },
+        },
+      },
+    });
+
+    return { result: updatedCustomer, message: '고객 정보 수정 완료' };
   }
 }

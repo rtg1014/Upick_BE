@@ -14,27 +14,55 @@ model Customer {
   age              Int?
   activity         String?
   gender           Gender?
-  nickname         String?
+  name             String?
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   providerId       String?
+  isPregnant       Boolean            @default(false)
+  isBreastFeed     Boolean            @default(false)
   provider         Provider
   CustomerToTag    CustomerToTag[]
-  Disease          Disease[]
   MerchandiseLikes MerchandiseLikes[]
   PharmacistLikes  PharmacistLikes[]
   postingLikes     PostingLikes[]
   TakingMedicine   TakingMedicine[]
+  CustomerDetails  CustomerDetails[]
 
   @@unique([provider, providerId])
 }
 
-model Disease {
-  id         Int      @id @default(autoincrement())
-  customerId Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  customer   Customer @relation(fields: [customerId], references: [id])
+model CustomerDetails {
+  id                          Int                          @id @default(autoincrement())
+  customerId                  Int
+  customer                    Customer                     @relation(fields: [customerId], references: [id])
+  takingExcerciseTimePerAWeek TakingExcerciseTimePerAWeek?
+  stroke                      Boolean                      @default(false)
+  heartDisease                Boolean                      @default(false)
+  highBloodPressure           Boolean                      @default(false)
+  diabetes                    Boolean                      @default(false)
+  etc                         Boolean                      @default(false)
+  memo                        String?
+}
+
+enum TakingExcerciseTimePerAWeek {
+  none // 안함
+  one // 1회
+  twoOrThree // 2~3회
+  fourOrFive // 4~5회
+  every // 매일
+}
+
+// enum TakingDiseaseName {
+//   stroke // 뇌졸증
+//   heartDisease // 심장병
+//   HighBloodPressure // 고혈압
+//   diabetes // 당뇨
+//   ect // 기타
+// }
+
+enum Gender {
+  male
+  female
 }
 
 enum Gender {
@@ -93,6 +121,7 @@ model Tag {
   PostingToTag      PostingToTag[]
 }
 
+//관심키워드
 model CustomerToTag {
   id         Int      @id @default(autoincrement())
   createdAt  DateTime @default(now())
