@@ -1,9 +1,9 @@
 import { ROLE } from 'src/constant/account.constant';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
-  Customer as TCustomer,
   SignInDto,
   SignInKakaoRequestDto,
+  UpdateCustomerDto,
 } from './dto/customer.dto';
 import {
   Injectable,
@@ -14,13 +14,13 @@ import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
 import * as qs from 'qs';
 import axios from 'axios';
-import { Provider, Customer, prisma } from '@prisma/client';
+import { Provider, Customer, Gender } from '@prisma/client';
 @Injectable()
 export class CustomersService {
-  constructor(private prismaService: PrismaService) {}
-  async customerSignup(customer: TCustomer, customerSignUpSecret: string) {
-    const { email, password, nickname } = customer;
+  constructor(private prismaService: PrismaService) {}  
 
+  async customerSignup(customer: Customer, customerSignUpSecret: string) {
+    const { email, password, name, age, gender } = customer;
     const CUSTOMER_PASSWORD_SALT = parseInt(process.env.CUSTOMER_PASSWORD_SALT);
 
     if (customerSignUpSecret !== process.env.CUSTOMER_SIGNUP_SECRET)
@@ -29,16 +29,16 @@ export class CustomersService {
     const isExist = await this.prismaService.customer.findFirst({
       where: { email },
     });
-    if (isExist) throw new InternalServerErrorException();
+    if (isExist) throw new InternalServerErrorException(`It's existing email`);
 
     const hashedPassword = await bcrypt.hash(password, CUSTOMER_PASSWORD_SALT);
-
     const _customer = await this.prismaService.customer.create({
       data: {
         email,
         password: hashedPassword,
-        nickname,
+        name,
         provider: Provider.local,
+        age,
       },
     });
     delete _customer.password;
@@ -118,8 +118,87 @@ export class CustomersService {
 
     return token;
   }
+
+  async addTakingMedicine(merchandiseId: number, customer: Customer) {
+    const addedTakingMedicine = await this.prismaService.takingMedicine.create({
+      data: { customerId: customer.id, merchandiseId },
+    });
+
+    return { result: addedTakingMedicine, message: '복용중인 약 추가 완료!' };
+  }
+
+  async deleteTakingMedicine(merchandiseId: number, customer: Customer) {
+    const deletedTakingMedicine =
+      await this.prismaService.takingMedicine.delete({
+        where: {
+          merchandiseId_customerId: { customerId: customer.id, merchandiseId },
+        },
+      });
+
+    return { result: deletedTakingMedicine, message: '복용중인 약 삭제 완료!' };
+  }
+
+  async updateCustomer(
+    customer: Customer,
+    updateCustomerDto: UpdateCustomerDto,
+  ) {
+    const {
+      name,
+      age,
+      gender,
+      isPregnant,
+      isBreastFeed,
+      tagIds,
+      medicineNames,
+      stroke,
+      heartDisease,
+      highBloodPressure,
+      diabetes,
+      etc,
+      takingExcerciseTimePerAWeek,
+      memo,
+    } = updateCustomerDto;
+
+    const customerToTagCreateManyInput = tagIds.map((num) => {
+      return { tagId: num };
+    });
+    const merchandiseIdsByMedicineName =
+      await this.prismaService.merchandise.findMany({
+        where: { name: { in: medicineNames } },
+        select: { id: true },
+      });
+    const takingMedicineCreateManyInput = merchandiseIdsByMedicineName.map(
+      (e) => {
+        return { merchandiseId: e.id };
+      },
+    );
+
+    const updatedCustomer = await this.prismaService.customer.update({
+      where: { id: customer.id },
+      data: {
+        name,
+        age,
+        gender,
+        isPregnant,
+        isBreastFeed,
+        CustomerToTag: { createMany: { data: customerToTagCreateManyInput } },
+        TakingMedicine: {
+          createMany: { data: takingMedicineCreateManyInput },
+        },
+        CustomerDetails: {
+          create: {
+            stroke,
+            diabetes,
+            heartDisease,
+            highBloodPressure,
+            etc,
+            takingExcerciseTimePerAWeek,
+            memo,
+          },
+        },
+      },
+    });
+
+    return { result: updatedCustomer, message: '고객 정보 수정 완료' };
+  }
 }
-//TODO 로그인, 토큰을 쿠키에 담아서 로그인 상태 유지 하기
-// 궁국적으로 약사만 글을 쓸수 있게
-// ci-cd 관심은(깃허브액션 사용) 있으나 도저언!!
-// 로그인까지 해보고 깃헙액션 공부

@@ -1,32 +1,40 @@
 import { Pharmacist } from '@prisma/client';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Posting } from './dto/postings.dto';
+import { CreatePostingDto, Posting } from './dto/postings.dto';
 
 @Injectable()
 export class PostingsService {
   constructor(private prismaService: PrismaService) {}
 
-  async createPosting(posting: Posting, pharmacist: Pharmacist) {
-    const { title, content, tags } = posting;
+  async createPosting(
+    createPostingDto: CreatePostingDto,
+    pharmacist: Pharmacist,
+  ) {
+    const { title, content, tags, merchandiseId } = createPostingDto;
 
-    if (!title.length || !content.length)
+    if (!title.length || !content.length || !merchandiseId)
       throw new InternalServerErrorException();
 
     const createdPosting = await this.prismaService.posting.create({
-      data: { title, content, pharmacistId: pharmacist.id },
+      data: {
+        title,
+        content,
+        pharmacistId: pharmacist.id,
+        merchandiseId: merchandiseId,
+      },
     });
 
     if (tags.length) {
-      for (const tagname of tags) {
+      for (const name of tags) {
         let tag = await this.prismaService.tag.findFirst({
-          where: { tagName: tagname },
+          where: { name },
         });
 
         if (!tag) {
           tag = await this.prismaService.tag.create({
             data: {
-              tagName: tagname,
+              name,
             },
           });
         }
@@ -39,7 +47,7 @@ export class PostingsService {
     const _posting = await this.prismaService.posting.findUnique({
       where: { id: createdPosting.id },
       include: {
-        PostingToTag: { select: { tag: { select: { tagName: true } } } },
+        PostingToTag: { select: { tag: { select: { name: true } } } },
       },
     });
 
