@@ -65,6 +65,11 @@ enum Gender {
   female
 }
 
+enum Gender {
+  male
+  female
+}
+
 model Pharmacist {
   id                  Int               @id @default(autoincrement())
   email               String            @unique
@@ -111,9 +116,9 @@ model Tag {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   name              String
+  CustomerToTag     CustomerToTag[]
   MerchandiseEffect MerchandiseEffect[]
   PostingToTag      PostingToTag[]
-  CustomerToTag     CustomerToTag[]
 }
 
 //관심키워드
@@ -230,19 +235,19 @@ model Comment {
   Pharmacist    Pharmacist  @relation(fields: [pharmacistId], references: [id])
 }
 
-enum Provider {
-  local
-  kakao
-}
-
 model TakingMedicine {
   id            Int         @id @default(autoincrement())
   customerId    Int
   merchandiseId Int
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
   customer      Customer    @relation(fields: [customerId], references: [id])
+  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
 
   @@unique([merchandiseId, customerId])
+}
+
+enum Provider {
+  local
+  kakao
 }
