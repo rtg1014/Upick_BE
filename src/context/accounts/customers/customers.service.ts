@@ -3,33 +3,30 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import {
   SignInDto,
   SignInKakaoRequestDto,
+  SignUpDto,
   UpdateCustomerDto,
 } from './dto/customer.dto';
-import {
-  Injectable,
-  InternalServerErrorException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
 import * as qs from 'qs';
 import axios from 'axios';
-import { Provider, Customer, Gender } from '@prisma/client';
+import { Provider, Customer } from '@prisma/client';
 @Injectable()
 export class CustomersService {
-  constructor(private prismaService: PrismaService) {}  
+  constructor(private prismaService: PrismaService) {}
 
-  async customerSignup(customer: Customer, customerSignUpSecret: string) {
-    const { email, password, name, age, gender } = customer;
+  async customerSignup(signUpDto: SignUpDto) {
+    const { email, password, name, confirmPassword } = signUpDto;
     const CUSTOMER_PASSWORD_SALT = parseInt(process.env.CUSTOMER_PASSWORD_SALT);
 
-    if (customerSignUpSecret !== process.env.CUSTOMER_SIGNUP_SECRET)
-      throw new BadRequestException();
+    if (password !== confirmPassword) throw new BadRequestException();
 
-    const isExist = await this.prismaService.customer.findFirst({
+    const isExist = await this.prismaService.customer.findUnique({
       where: { email },
     });
-    if (isExist) throw new InternalServerErrorException(`It's existing email`);
+
+    if (isExist) throw new BadRequestException(`It's existing email`);
 
     const hashedPassword = await bcrypt.hash(password, CUSTOMER_PASSWORD_SALT);
     const _customer = await this.prismaService.customer.create({
@@ -38,7 +35,6 @@ export class CustomersService {
         password: hashedPassword,
         name,
         provider: Provider.local,
-        age,
       },
     });
     delete _customer.password;
@@ -148,7 +144,7 @@ export class CustomersService {
       gender,
       isPregnant,
       isBreastFeed,
-      tagIds,
+      considerIds,
       medicineNames,
       stroke,
       heartDisease,
@@ -159,8 +155,8 @@ export class CustomersService {
       memo,
     } = updateCustomerDto;
 
-    const customerToTagCreateManyInput = tagIds.map((num) => {
-      return { tagId: num };
+    const CustomerToConsiderCreateManyInput = considerIds.map((num) => {
+      return { considerId: num };
     });
     const merchandiseIdsByMedicineName =
       await this.prismaService.merchandise.findMany({
@@ -173,6 +169,14 @@ export class CustomersService {
       },
     );
 
+    // 기존에 연결된 다대다 테이블 삭제
+    await this.prismaService.customerToConsider.deleteMany({
+      where: { customerId: customer.id },
+    });
+    await this.prismaService.takingMedicine.deleteMany({
+      where: { customerId: customer.id },
+    });
+
     const updatedCustomer = await this.prismaService.customer.update({
       where: { id: customer.id },
       data: {
@@ -181,7 +185,9 @@ export class CustomersService {
         gender,
         isPregnant,
         isBreastFeed,
-        CustomerToTag: { createMany: { data: customerToTagCreateManyInput } },
+        CustomerToConsider: {
+          createMany: { data: CustomerToConsiderCreateManyInput },
+        },
         TakingMedicine: {
           createMany: { data: takingMedicineCreateManyInput },
         },
@@ -199,6 +205,97 @@ export class CustomersService {
       },
     });
 
-    return { result: updatedCustomer, message: '고객 정보 수정 완료' };
+    return { result: updatedCustomer, message: '마이픽 정보 수정 완료' };
+  }
+
+  async getCustomer(customer: Customer) {
+    const _customer = await this.prismaService.customer.findUnique({
+      where: { id: customer.id },
+      select: {
+        name: true,
+        gender: true,
+        age: true,
+        isBreastFeed: true,
+        isPregnant: true,
+        CustomerToConsider: { select: { considerId: true } },
+        TakingMedicine: { select: { merchandise: true } },
+        CustomerDetails: true,
+      },
+    });
+    const randomNumbers = [];
+    for (let i = 0; i < 4; i++) {
+      const randomNumber = Math.round(Math.random() * 10) + 1;
+      randomNumbers.push(randomNumber);
+    }
+    const merchandises = await this.prismaService.merchandise.findMany({
+      where: { id: { in: randomNumbers } },
+      select: { id: true, Image: true, company: true, name: true },
+    });
+
+    return {
+      result: { _customer, merchandises },
+      message: '마이픽 조회 완료',
+    };
+  }
+
+  async getMerchandisesHaveToPick(customer: Customer) {
+    const merchandises = await this.prismaService.merchandise.findMany({
+      where: {
+        CustomerPickUps: { some: { customerId: customer.id, isPicked: false } },
+      },
+      include: { CustomerPickUps: true },
+    });
+
+    return {
+      result: merchandises,
+      message: '픽업할 상품 조회 완료',
+    };
+  }
+
+  async getMerchandisesIPicked(customer: Customer) {
+    const merchandises = await this.prismaService.merchandise.findMany({
+      where: {
+        CustomerPickUps: { some: { customerId: customer.id, isPicked: true } },
+      },
+      include: { CustomerPickUps: true },
+    });
+
+    return {
+      result: merchandises,
+      message: '픽업한 상품 조회 완료',
+    };
+  }
+
+  async getMerchandisesILike(customer: Customer) {
+    const merchandises = await this.prismaService.merchandise.findMany({
+      where: { MerchandiseLikes: { some: { customerId: customer.id } } },
+    });
+
+    return {
+      result: merchandises,
+      message: '찜한 상품 조회 완료',
+    };
+  }
+
+  async getPostingsILike(customer: Customer) {
+    const postings = await this.prismaService.posting.findMany({
+      where: { postingLikes: { some: { customerId: customer.id } } },
+    });
+
+    return {
+      result: postings,
+      message: '찜한 칼럼 조회 완료',
+    };
+  }
+
+  async getPharmacistsILike(customer: Customer) {
+    const pharmacists = await this.prismaService.pharmacist.findMany({
+      where: { PharmacistLikes: { some: { customerId: customer.id } } },
+    });
+
+    return {
+      result: pharmacists,
+      message: '찜한 약사 조회 완료',
+    };
   }
 }

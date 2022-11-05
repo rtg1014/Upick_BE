@@ -3,6 +3,12 @@ export interface SignInDto {
   email: string;
   password: string;
 }
+export interface SignUpDto {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 export interface SignInKakaoRequestDto {
   code: string;
@@ -15,7 +21,7 @@ export interface UpdateCustomerDto {
   gender?: Gender;
   isPregnant: boolean;
   isBreastFeed: boolean;
-  tagIds?: number[];
+  considerIds?: number[];
   medicineNames?: string[];
   stroke?: boolean;
   heartDisease?: boolean;

@@ -1,4 +1,4 @@
-import { Pharmacist } from '@prisma/client';
+import { Customer, Pharmacist } from '@prisma/client';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreatePostingDto, Posting } from './dto/postings.dto';
@@ -11,17 +11,25 @@ export class PostingsService {
     createPostingDto: CreatePostingDto,
     pharmacist: Pharmacist,
   ) {
-    const { title, content, tags, merchandiseId } = createPostingDto;
+    const { title, content, tags, merchandiseIds } = createPostingDto;
 
-    if (!title.length || !content.length || !merchandiseId)
+    if (!title.length || !content.length || !merchandiseIds.length)
       throw new InternalServerErrorException();
+
+    const PostingToMerchandiseIdCreateManyInput = merchandiseIds.map(
+      (merchandiseId) => {
+        return { merchandiseId };
+      },
+    );
 
     const createdPosting = await this.prismaService.posting.create({
       data: {
         title,
         content,
         pharmacistId: pharmacist.id,
-        merchandiseId: merchandiseId,
+        MerchandiseToPosting: {
+          createMany: { data: PostingToMerchandiseIdCreateManyInput },
+        },
       },
     });
 
@@ -102,20 +110,22 @@ export class PostingsService {
     return { result: updatedPosting, message: '칼럼이 수정되었습니다' };
   }
 
-  async toggleLike(id: number, customerId: number) {
+  async toggleLike(id: number, customer: Customer) {
     const postingId = id;
     const like = await this.prismaService.postingLikes.findUnique({
-      where: { postingId_customerId: { customerId, postingId } },
+      where: { postingId_customerId: { customerId: customer.id, postingId } },
     });
 
     const message = like ? '좋아요 취소 완료' : '좋아요 완료';
 
     const updatedLike = like
       ? await this.prismaService.postingLikes.delete({
-          where: { postingId_customerId: { customerId, postingId } },
+          where: {
+            postingId_customerId: { customerId: customer.id, postingId },
+          },
         })
       : await this.prismaService.postingLikes.create({
-          data: { customerId, postingId },
+          data: { customerId: customer.id, postingId },
         });
 
     return { result: updatedLike, message };
