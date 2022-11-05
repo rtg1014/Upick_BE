@@ -5,5 +5,5 @@ export interface Posting {
 }
 
 export interface CreatePostingDto extends Posting {
-  merchandiseId: number;
+  merchandiseIds: number[];
 }

@@ -8,33 +8,65 @@ datasource db {
 }
 
 model Customer {
-  id               Int                @id @default(autoincrement())
-  email            String?            @unique
-  password         String?
-  age              Int?
-  activity         String?
-  gender           Gender?
-  name             String?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  providerId       String?
-  isPregnant       Boolean            @default(false)
-  isBreastFeed     Boolean            @default(false)
-  provider         Provider
-  CustomerToTag    CustomerToTag[]
-  MerchandiseLikes MerchandiseLikes[]
-  PharmacistLikes  PharmacistLikes[]
-  postingLikes     PostingLikes[]
-  TakingMedicine   TakingMedicine[]
-  CustomerDetails  CustomerDetails[]
+  id                 Int                  @id @default(autoincrement())
+  email              String?              @unique
+  password           String?
+  age                Int?
+  activity           String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  providerId         String?
+  provider           Provider
+  gender             Gender?
+  isBreastFeed       Boolean              @default(false)
+  isPregnant         Boolean              @default(false)
+  name               String?
+  CustomerDetails    CustomerDetails[]
+  MerchandiseLikes   MerchandiseLikes[]
+  PharmacistLikes    PharmacistLikes[]
+  postingLikes       PostingLikes[]
+  TakingMedicine     TakingMedicine[]
+  CustomerToConsider CustomerToConsider[]
+  CustomerPickUps    CustomerPickUps[]
 
   @@unique([provider, providerId])
+}
+
+model CustomerPickUps {
+  id             Int         @id @default(autoincrement())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  customerId     Int
+  merchandiseId  Int
+  pharmacyName   String
+  pharmacyAdress String
+  pickableAt     DateTime
+  isPicked       Boolean     @default(false)
+  customer       Customer    @relation(fields: [customerId], references: [id])
+  merchandise    Merchandise @relation(fields: [merchandiseId], references: [id])
+}
+
+model CustomerToConsider {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  customerId Int
+  considerId Int
+  customer   Customer @relation(fields: [customerId], references: [id])
+  consider   Consider @relation(fields: [considerId], references: [id])
+}
+
+model Consider {
+  id                 Int                  @id @default(autoincrement())
+  name               String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  CustomerToConisder CustomerToConsider[]
 }
 
 model CustomerDetails {
   id                          Int                          @id @default(autoincrement())
   customerId                  Int
-  customer                    Customer                     @relation(fields: [customerId], references: [id])
   takingExcerciseTimePerAWeek TakingExcerciseTimePerAWeek?
   stroke                      Boolean                      @default(false)
   heartDisease                Boolean                      @default(false)
@@ -42,32 +74,7 @@ model CustomerDetails {
   diabetes                    Boolean                      @default(false)
   etc                         Boolean                      @default(false)
   memo                        String?
-}
-
-enum TakingExcerciseTimePerAWeek {
-  none // 안함
-  one // 1회
-  twoOrThree // 2~3회
-  fourOrFive // 4~5회
-  every // 매일
-}
-
-// enum TakingDiseaseName {
-//   stroke // 뇌졸증
-//   heartDisease // 심장병
-//   HighBloodPressure // 고혈압
-//   diabetes // 당뇨
-//   ect // 기타
-// }
-
-enum Gender {
-  male
-  female
-}
-
-enum Gender {
-  male
-  female
+  customer                    Customer                     @relation(fields: [customerId], references: [id])
 }
 
 model Pharmacist {
@@ -98,17 +105,16 @@ model PharmacistLikes {
 }
 
 model Posting {
-  id            Int            @id @default(autoincrement())
-  title         String
-  content       String
-  pharmacistId  Int
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  merchandiseId Int
-  merchandise   Merchandise    @relation(fields: [merchandiseId], references: [id])
-  pharmacist    Pharmacist     @relation(fields: [pharmacistId], references: [id])
-  postingLikes  PostingLikes[]
-  PostingToTag  PostingToTag[]
+  id                   Int                    @id @default(autoincrement())
+  title                String
+  content              String
+  pharmacistId         Int
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  pharmacist           Pharmacist             @relation(fields: [pharmacistId], references: [id])
+  postingLikes         PostingLikes[]
+  PostingToTag         PostingToTag[]
+  MerchandiseToPosting MerchandiseToPosting[]
 }
 
 model Tag {
@@ -116,20 +122,8 @@ model Tag {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   name              String
-  CustomerToTag     CustomerToTag[]
   MerchandiseEffect MerchandiseEffect[]
   PostingToTag      PostingToTag[]
-}
-
-//관심키워드
-model CustomerToTag {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  tagId      Int
-  customerId Int
-  tag        Tag      @relation(fields: [tagId], references: [id])
-  customer   Customer @relation(fields: [customerId], references: [id])
 }
 
 model PostingToTag {
@@ -154,22 +148,54 @@ model PostingLikes {
 }
 
 model Merchandise {
-  id                        Int                     @id @default(autoincrement())
+  id                        Int                       @id @default(autoincrement())
   companyId                 Int
   name                      String
-  certification             Boolean                 @default(false)
-  createdAt                 DateTime                @default(now())
-  updatedAt                 DateTime                @updatedAt
-  rating                    Float
+  certification             Boolean                   @default(false)
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
+  rating                    String
   merchandiseHowToConsumeId Int
-  company                   Company                 @relation(fields: [companyId], references: [id])
-  merchandiseHowToConsume   MerchandiseHowToConsume @relation(fields: [merchandiseHowToConsumeId], references: [id])
+  company                   Company                   @relation(fields: [companyId], references: [id])
+  merchandiseHowToConsume   MerchandiseHowToConsume   @relation(fields: [merchandiseHowToConsumeId], references: [id])
   Comment                   Comment[]
   Image                     Image?
   MerchandiseEffect         MerchandiseEffect[]
   MerchandiseLikes          MerchandiseLikes[]
-  Posting                   Posting[]
   TakingMedicine            TakingMedicine[]
+  MerchandiseToPosting      MerchandiseToPosting[]
+  CustomerPickUps           CustomerPickUps[]
+  MerchandiseToIngredient   MerchandiseToIngredient[]
+}
+
+model Ingredient {
+  id                      Int                       @id @default(autoincrement())
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  name                    String
+  MerchandiseToIngredient MerchandiseToIngredient[]
+}
+
+model MerchandiseToIngredient {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  quantity      String?
+  mercahndiseId Int
+  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
+  ingredientId  Int
+  ingredient    Ingredient  @relation(fields: [ingredientId], references: [id])
+  merchandiseId Int
+}
+
+model MerchandiseToPosting {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  merchandiseId Int
+  postingId     Int
+  merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
+  posting       Posting     @relation(fields: [postingId], references: [id])
 }
 
 model MerchandiseHowToConsume {
@@ -245,6 +271,19 @@ model TakingMedicine {
   merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
 
   @@unique([merchandiseId, customerId])
+}
+
+enum TakingExcerciseTimePerAWeek {
+  none
+  one
+  twoOrThree
+  fourOrFive
+  every
+}
+
+enum Gender {
+  male
+  female
 }
 
 enum Provider {

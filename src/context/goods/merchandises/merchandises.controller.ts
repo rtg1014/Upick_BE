@@ -25,7 +25,6 @@ import { MerchandisesService } from './merchandises.service';
 import {
   Comment,
   PatchCommentDto,
-  CreateMerchandiseFromCrawlerDto,
   GetMerchandisesByLikesFilteringAgeDto,
 } from './dto/merchandise.dto';
 import { Pharmacist } from 'src/decorators/pharmacist.decorator';
@@ -80,16 +79,6 @@ export class MerchandisesController {
     );
   }
 
-  @Post('test')
-  @Roles(ROLE.PHARMACIST)
-  createMerchandiseFromCrawler(
-    @Body() createMerchandiseFromCrawlerDto: CreateMerchandiseFromCrawlerDto,
-  ) {
-    return this.merchandisesService.createMerchandiseFromCrawler(
-      createMerchandiseFromCrawlerDto,
-    );
-  }
-
   // @Get('/:merchandiseId/comments')
   // getComments(@Param('merchandiseId', ParseIntPipe) merchandiseId: number) {
   //   return this.merchandisesService.getComments(merchandiseId);
@@ -97,8 +86,10 @@ export class MerchandisesController {
 
   @Get('/search/category')
   @Roles(ROLE.CUSTOMER)
-  serchingCategoryInMerchandise(@Param('textTyping', ParseIntPipe) textTyping: string) {
-    return this.merchandisesService.serchingCategoryInMerchandise(textTyping,);
+  serchingCategoryInMerchandise(
+    @Param('textTyping', ParseIntPipe) textTyping: string,
+  ) {
+    return this.merchandisesService.serchingCategoryInMerchandise(textTyping);
   }
 
   @Post('/:merchandiseId/comments')
@@ -153,8 +144,6 @@ export class MerchandisesController {
   ) {
     return this.merchandisesService.toggleLike(merchandiseId, customer);
   }
-
-
 
   @Get('search/:keyword')
   @Roles(ROLE.CUSTOMER)

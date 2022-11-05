@@ -10,7 +10,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import {
   Comment,
   PatchCommentDto,
-  CreateMerchandiseFromCrawlerDto,
   GetMerchandisesByLikesFilteringAgeDto,
 } from './dto/merchandise.dto';
 
@@ -67,24 +66,9 @@ export class MerchandisesService {
       },
     });
 
+    // await this.createMerchandiseEffects(merchandise.id, effects);
+
     return { result: merchandise, message: '상품 생성 완료' };
-  }
-
-  async createMerchandiseFromCrawler(
-    createMerchandiseFromCrawlerDto: CreateMerchandiseFromCrawlerDto,
-  ) {
-    const {
-      certification,
-      company,
-      merchandiseEffects,
-      merchandiseHowToConsume,
-      name,
-      rating,
-    } = createMerchandiseFromCrawlerDto;
-
-    // const createdMerchandise =
-
-    // return { result: merchandise, message: '상품 생성 완료' };
   }
 
   async createMerchandiseEffects(merchandiseId: number, effects: string[]) {
@@ -317,7 +301,7 @@ export class MerchandisesService {
       },
       include: {
         MerchandiseLikes: {
-          select: { customer: { select: { gender: true, } } },
+          select: { customer: { select: { gender: true } } },
         },
       },
     });
@@ -329,7 +313,7 @@ export class MerchandisesService {
       ).length;
 
       const _merchandise = Object.assign(merchandise, {
-        likes : merchanGenders
+        likes: merchanGenders,
       });
 
       _merchandises.push(_merchandise);
@@ -382,40 +366,38 @@ export class MerchandisesService {
     };
   }
 
-  async serchingCategoryInMerchandise(textTyping:string){
+  async serchingCategoryInMerchandise(textTyping: string) {
     const merchandise = await this.prismaService.merchandise.findMany({
       where: {
         OR: [
           {
-            name:{
-              contains: textTyping
+            name: {
+              contains: textTyping,
             },
           },
           {
-            MerchandiseEffect:{
-              some:{
+            MerchandiseEffect: {
+              some: {
                 tag: {
-                  name:{
-                    contains:textTyping
-                  }
-                }
-              }
-            }
+                  name: {
+                    contains: textTyping,
+                  },
+                },
+              },
+            },
           },
           {
-            company:{
-              name:{
-                contains: textTyping
-              }
-            }
-          }
+            company: {
+              name: {
+                contains: textTyping,
+              },
+            },
+          },
         ],
       },
-      include: {
-        
-      }
-    })
+      include: {},
+    });
 
-    return
+    return;
   }
 }
