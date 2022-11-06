@@ -196,7 +196,7 @@ model PostingToAgeRange {
   ageRange   AgeRange @relation(fields: [ageRangeId], references: [id])
 }
 
-model Tag {
+model Effect {
   id                Int                 @id @default(autoincrement())
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
@@ -280,11 +280,11 @@ model MerchandiseHowToConsume {
 model MerchandiseEffect {
   id            Int         @id @default(autoincrement())
   merchandiseId Int
-  tagId         Int
+  effectId      Int
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
-  tag           Tag         @relation(fields: [tagId], references: [id])
+  effect        Effect      @relation(fields: [effectId], references: [id])
 }
 
 model MerchandiseLikes {

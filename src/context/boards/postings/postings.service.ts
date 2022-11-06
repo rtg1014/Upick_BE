@@ -77,12 +77,24 @@ export class PostingsService {
     return { result: createdPosting, message: '칼럼작성 완료!' };
   }
 
-  async getPosting(id: number) {
+  async getPosting(id: number, customer?: Customer) {
     const posting = await this.prismaService.posting.findUnique({
       where: { id },
       include: {
         pharmacist: {
-          select: { userName: true, pharmacyName: true, pharmacyAddress: true },
+          select: {
+            userName: true,
+            pharmacyName: true,
+            pharmacyAddress: true,
+            Image: true,
+          },
+        },
+        postingLikes: { where: { customerId: customer ? customer.id : null } },
+        MerchandiseToPosting: { select: { merchandise: true } },
+        PostingToAgeRange: { select: { ageRange: { select: { name: true } } } },
+        PostingToConsider: { select: { consider: { select: { name: true } } } },
+        PostingToIngredient: {
+          select: { ingredient: { select: { name: true } } },
         },
       },
     });
@@ -90,11 +102,23 @@ export class PostingsService {
     return { result: posting, message: `${id}번 칼럼 조회 완료` };
   }
 
-  async getPostings() {
+  async getPostings(customer?: Customer) {
     const postings = await this.prismaService.posting.findMany({
       include: {
         pharmacist: {
-          select: { userName: true, pharmacyName: true, pharmacyAddress: true },
+          select: {
+            userName: true,
+            pharmacyName: true,
+            pharmacyAddress: true,
+            Image: { select: { url: true } },
+          },
+        },
+        postingLikes: { where: { customerId: customer ? customer.id : null } },
+        MerchandiseToPosting: { select: { merchandise: true } },
+        PostingToAgeRange: { select: { ageRange: { select: { name: true } } } },
+        PostingToConsider: { select: { consider: { select: { name: true } } } },
+        PostingToIngredient: {
+          select: { ingredient: { select: { name: true } } },
         },
       },
     });
