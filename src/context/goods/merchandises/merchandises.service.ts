@@ -85,12 +85,12 @@ export class MerchandisesService {
           }),
         );
       else {
-        const createdTag = await this.prismaService.effect.create({
+        const createdEffect = await this.prismaService.effect.create({
           data: { name: effect },
         });
         promises.push(
           this.prismaService.merchandiseEffect.create({
-            data: { merchandiseId, effectId: existingEffect.id },
+            data: { merchandiseId, effectId: createdEffect.id },
           }),
         );
       }
