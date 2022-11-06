@@ -151,7 +151,7 @@ export class PostingsService {
         PostingToAgeRange: { some: { ageRangeId: { in: ageRangeIds } } },
         PostingToConsider: { some: { considerId: { in: considerIds } } },
         PostingToIngredient: { some: { ingredientId: { in: ingredientIds } } },
-        gender: { equals: postingFilter.gender },
+        gender: postingFilter ? { equals: postingFilter.gender } : {},
       };
     }
 
