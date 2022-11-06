@@ -34,12 +34,12 @@ import { Customer } from 'src/decorators/customer.decorator';
 export class MerchandisesController {
   constructor(private readonly merchandisesService: MerchandisesService) {}
 
-  @Get('filtering-by-effect/:tagId')
+  @Get('filtering-by-effect/:effectId')
   rankinggetMerchandisesByLikesFilteringByEffect(
-    @Param('tagId', ParseIntPipe) tagId: number,
+    @Param('effectId', ParseIntPipe) effectId: number,
   ) {
     return this.merchandisesService.getMerchandisesByLikesFilteringEffect(
-      tagId,
+      effectId,
     );
   }
 
@@ -86,10 +86,8 @@ export class MerchandisesController {
 
   @Get('/search/category')
   @Roles(ROLE.CUSTOMER)
-  serchingCategoryInMerchandise(
-    @Param('textTyping', ParseIntPipe) textTyping: string,
-  ) {
-    return this.merchandisesService.serchingCategoryInMerchandise(textTyping);
+  serchingCategoryInMerchandise(@Param('keyword') keyword: string) {
+    return this.merchandisesService.serchingCategoryInMerchandise(keyword);
   }
 
   @Post('/:merchandiseId/comments')

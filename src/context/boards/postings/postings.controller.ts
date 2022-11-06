@@ -32,13 +32,16 @@ export class PostingsController {
   }
 
   @Get(':id')
-  getPosting(@Param('id', ParseIntPipe) id: number) {
-    return this.postingsService.getPosting(id);
+  getPosting(
+    @Param('id', ParseIntPipe) id: number,
+    @Customer() customer: TCustomer,
+  ) {
+    return this.postingsService.getPosting(id, customer);
   }
 
   @Get('')
-  getPostings() {
-    return this.postingsService.getPostings();
+  getPostings(@Customer() customer: TCustomer) {
+    return this.postingsService.getPostings(customer);
   }
 
   // @Patch(':id')

@@ -75,22 +75,22 @@ export class MerchandisesService {
     const promises = [];
 
     for (const effect of effects) {
-      const existingTag = await this.prismaService.tag.findFirst({
+      const existingEffect = await this.prismaService.effect.findFirst({
         where: { name: effect },
       });
-      if (existingTag)
+      if (existingEffect)
         promises.push(
           this.prismaService.merchandiseEffect.create({
-            data: { merchandiseId, tagId: existingTag.id },
+            data: { merchandiseId, effectId: existingEffect.id },
           }),
         );
       else {
-        const createdTag = await this.prismaService.tag.create({
+        const createdTag = await this.prismaService.effect.create({
           data: { name: effect },
         });
         promises.push(
           this.prismaService.merchandiseEffect.create({
-            data: { merchandiseId, tagId: createdTag.id },
+            data: { merchandiseId, effectId: existingEffect.id },
           }),
         );
       }
@@ -191,7 +191,7 @@ export class MerchandisesService {
         Comment: true,
         company: true,
         Image: { select: { url: true } },
-        MerchandiseEffect: { select: { tag: { select: { name: true } } } },
+        MerchandiseEffect: { select: { effect: { select: { name: true } } } },
         merchandiseHowToConsume: { select: { consumption: true } },
         MerchandiseLikes: {
           select: { customer: { select: { _count: true } } },
@@ -275,7 +275,7 @@ export class MerchandisesService {
           },
           {
             MerchandiseEffect: {
-              some: { tag: { name: { contains: keyword } } },
+              some: { effect: { name: { contains: keyword } } },
             },
           },
           {
@@ -283,7 +283,10 @@ export class MerchandisesService {
           },
         ],
       },
-      include: { MerchandiseEffect: { select: { tag: true } }, company: true },
+      include: {
+        MerchandiseEffect: { select: { effect: { select: { name: true } } } },
+        company: { select: { name: true } },
+      },
     });
 
     return { result: merchandises, message: `'${keyword}' 로 검색 완료~!` };
@@ -326,12 +329,12 @@ export class MerchandisesService {
     };
   }
 
-  async getMerchandisesByLikesFilteringEffect(tagId: number) {
+  async getMerchandisesByLikesFilteringEffect(effectId: number) {
     const merchandises = await this.prismaService.merchandise.findMany({
       where: {
         MerchandiseEffect: {
           some: {
-            tagId: tagId,
+            effectId,
           },
         },
       },
@@ -366,21 +369,21 @@ export class MerchandisesService {
     };
   }
 
-  async serchingCategoryInMerchandise(textTyping: string) {
+  async serchingCategoryInMerchandise(keyword: string) {
     const merchandise = await this.prismaService.merchandise.findMany({
       where: {
         OR: [
           {
             name: {
-              contains: textTyping,
+              contains: keyword,
             },
           },
           {
             MerchandiseEffect: {
               some: {
-                tag: {
+                effect: {
                   name: {
-                    contains: textTyping,
+                    contains: keyword,
                   },
                 },
               },
@@ -389,7 +392,7 @@ export class MerchandisesService {
           {
             company: {
               name: {
-                contains: textTyping,
+                contains: keyword,
               },
             },
           },
