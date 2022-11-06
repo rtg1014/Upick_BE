@@ -1,7 +1,15 @@
-import { Customer, Pharmacist } from '@prisma/client';
+import {
+  Customer,
+  CustomerPostingFilter,
+  filterToAgeRange,
+  filterToConsider,
+  filterToIngredient,
+  Pharmacist,
+  Prisma,
+} from '@prisma/client';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePostingDto } from './dto/postings.dto';
+import { CreatePostingDto, OrderBy } from './dto/postings.dto';
 
 @Injectable()
 export class PostingsService {
@@ -90,7 +98,13 @@ export class PostingsService {
           },
         },
         postingLikes: { where: { customerId: customer ? customer.id : null } },
-        MerchandiseToPosting: { select: { merchandise: true } },
+        MerchandiseToPosting: {
+          include: {
+            merchandise: {
+              include: { Image: { select: { url: true } }, Comment: true },
+            },
+          },
+        },
         PostingToAgeRange: { select: { ageRange: { select: { name: true } } } },
         PostingToConsider: { select: { consider: { select: { name: true } } } },
         PostingToIngredient: {
@@ -102,8 +116,49 @@ export class PostingsService {
     return { result: posting, message: `${id}번 칼럼 조회 완료` };
   }
 
-  async getPostings(customer?: Customer) {
+  async getPostings(customer?: Customer, orderBy?: OrderBy, keyword?: string) {
+    let whereArg = {};
+    let postingFilter;
+    if (customer) {
+      postingFilter = await this.prismaService.customerPostingFilter.findUnique(
+        {
+          where: { customerId: customer.id },
+          include: {
+            filterToAgeRange: { select: { ageRangeId: true } },
+            filterToConsider: { select: { considerId: true } },
+            filterToIngredient: { select: { ingredientId: true } },
+          },
+        },
+      );
+      const ageRangeIds: number[] = postingFilter.filterToAgeRange.map(
+        (filterToAgeRange: filterToAgeRange) => filterToAgeRange.ageRangeId,
+      );
+      const considerIds: number[] = postingFilter.filterToConsider.map(
+        (filterToConsider: filterToConsider) => filterToConsider.considerId,
+      );
+      const ingredientIds: number[] = postingFilter.filterToIngredient.map(
+        (filterToIngredient: filterToIngredient) =>
+          filterToIngredient.ingredientId,
+      );
+
+      whereArg = {
+        PostingToAgeRange: { some: { ageRangeId: { in: ageRangeIds } } },
+        PostingToConsider: { some: { considerId: { in: considerIds } } },
+        PostingToIngredient: { some: { ingredientId: { in: ingredientIds } } },
+        gender: { equals: postingFilter.gender },
+      };
+    }
+
+    if (keyword)
+      Object.assign(whereArg, {
+        OR: [
+          { content: { contains: keyword } },
+          { title: { contains: keyword } },
+        ],
+      });
+
     const postings = await this.prismaService.posting.findMany({
+      where: whereArg,
       include: {
         pharmacist: {
           select: {
@@ -121,8 +176,12 @@ export class PostingsService {
           select: { ingredient: { select: { name: true } } },
         },
       },
+      orderBy:
+        orderBy === OrderBy.likes
+          ? { postingLikes: { _count: 'desc' } }
+          : { createdAt: 'desc' },
     });
-    return { result: postings, message: '모든 칼럼 조회 완료' };
+    return { result: postings, message: '칼럼 조회 완료' };
   }
 
   // async updatePosting(id: number, posting: Posting, pharmacist: Pharmacist) {

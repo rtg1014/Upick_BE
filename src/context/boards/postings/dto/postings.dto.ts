@@ -9,3 +9,8 @@ export interface CreatePostingDto {
   considerIds: number[];
   gender?: Gender;
 }
+
+export enum OrderBy {
+  likes,
+  latest,
+}

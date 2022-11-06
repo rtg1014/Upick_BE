@@ -6,9 +6,10 @@ import {
   Param,
   ParseIntPipe,
   Put,
+  Query,
 } from '@nestjs/common';
 import { PostingsService } from './postings.service';
-import { CreatePostingDto } from './dto/postings.dto';
+import { CreatePostingDto, OrderBy } from './dto/postings.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { ROLE } from 'src/constant/account.constant';
 import { Pharmacist } from 'src/decorators/pharmacist.decorator';
@@ -34,14 +35,18 @@ export class PostingsController {
   @Get(':id')
   getPosting(
     @Param('id', ParseIntPipe) id: number,
-    @Customer() customer: TCustomer,
+    @Customer() customer?: TCustomer,
   ) {
     return this.postingsService.getPosting(id, customer);
   }
 
   @Get('')
-  getPostings(@Customer() customer: TCustomer) {
-    return this.postingsService.getPostings(customer);
+  getPostings(
+    @Customer() customer?: TCustomer,
+    @Query('keyword') keyword?: string,
+    @Query('orderBy') orderBy?: OrderBy,
+  ) {
+    return this.postingsService.getPostings(customer, orderBy, keyword);
   }
 
   // @Patch(':id')
