@@ -1,9 +1,11 @@
-export interface Posting {
+import { Gender } from '@prisma/client';
+
+export interface CreatePostingDto {
   title: string;
   content: string;
-  tags?: string[];
-}
-
-export interface CreatePostingDto extends Posting {
   merchandiseIds: number[];
+  ingredientIds: number[];
+  ageIds: number[];
+  considerIds: number[];
+  gender?: Gender;
 }

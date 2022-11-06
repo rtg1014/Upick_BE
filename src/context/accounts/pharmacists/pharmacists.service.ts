@@ -5,14 +5,23 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PharmacistSignUpDto,SignInDto } from './dto/pharmacist.dto';
+import { PharmacistSignUpDto, SignInDto } from './dto/pharmacist.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
+import { ImagesService } from 'src/context/common/images/images.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PharmacistsService {
-  constructor(private prismaService: PrismaService) {}
-  async signUp(pharmacistSignUpDto: PharmacistSignUpDto) {
+  constructor(
+    private prismaService: PrismaService,
+    private imagesService: ImagesService,
+  ) {}
+
+  async signUp(
+    pharmacistSignUpDto: PharmacistSignUpDto,
+    imageToUpload: Express.Multer.File,
+  ) {
     const {
       email,
       password,
@@ -20,6 +29,8 @@ export class PharmacistsService {
       pharmacyName,
       pharmacyAddress,
       pharmacistSignUpSecret,
+      counselingEndTime,
+      counselingStartTime,
     } = pharmacistSignUpDto;
     const PHARMACIST_PASSWORD_SALT = parseInt(
       process.env.PHARMACIST_PASSWORD_SALT,
@@ -33,6 +44,9 @@ export class PharmacistsService {
     });
     if (isExist) throw new InternalServerErrorException();
 
+    //create image
+    const pharmacistImage = await this.imagesService.create(imageToUpload);
+
     const hashedPassword = await bcrypt.hash(
       password,
       PHARMACIST_PASSWORD_SALT,
@@ -45,6 +59,9 @@ export class PharmacistsService {
         userName,
         pharmacyName,
         pharmacyAddress,
+        counselingStartTime,
+        counselingEndTime,
+        Image: { connect: { id: pharmacistImage.id } },
       },
     });
     delete _pharmacist.password;
@@ -53,7 +70,7 @@ export class PharmacistsService {
   }
 
   async signIn(signInDto: SignInDto) {
-    const {email, password} = signInDto
+    const { email, password } = signInDto;
     const pharmacist = await this.prismaService.pharmacist.findUnique({
       where: { email },
     });
@@ -75,7 +92,7 @@ export class PharmacistsService {
     const secret = process.env.PHARMACIST_JWT_SECRET;
     const expiresIn = '3h';
     const token = sign(payload, secret, { expiresIn });
-    
+
     return { result: token, message: 'Login success' };
   }
 }

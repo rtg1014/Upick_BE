@@ -5,11 +5,10 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Put,
 } from '@nestjs/common';
 import { PostingsService } from './postings.service';
-import { Posting, CreatePostingDto } from './dto/postings.dto';
+import { CreatePostingDto } from './dto/postings.dto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { ROLE } from 'src/constant/account.constant';
 import { Pharmacist } from 'src/decorators/pharmacist.decorator';
@@ -42,15 +41,15 @@ export class PostingsController {
     return this.postingsService.getPostings();
   }
 
-  @Patch(':id')
-  @Roles(ROLE.PHARMACIST)
-  updatePosting(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() posting: Posting,
-    @Pharmacist() pharmacist: TPharmacist,
-  ) {
-    return this.postingsService.updatePosting(id, posting, pharmacist);
-  }
+  // @Patch(':id')
+  // @Roles(ROLE.PHARMACIST)
+  // updatePosting(
+  //   @Param('id', ParseIntPipe) id: number,
+  //   @Body() posting: Posting,
+  //   @Pharmacist() pharmacist: TPharmacist,
+  // ) {
+  //   return this.postingsService.updatePosting(id, posting, pharmacist);
+  // }
 
   @Put(':id/like')
   toggleLike(

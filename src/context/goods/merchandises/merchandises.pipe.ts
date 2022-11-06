@@ -1,4 +1,4 @@
-import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
+import { Injectable, PipeTransform } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CreateMerchandiseDto } from './dto/merchandise.dto';
 
@@ -14,7 +14,6 @@ export class TransformMerchandisesCreateMerchandiseRequestDtoPipe
     const { company, rating, name, certification, merchandiseHowToConsume } =
       value;
 
-    const _rating = +rating;
     const _certification = certification === 'true' ? true : false;
     const _company: Prisma.CompanyCreateNestedOneWithoutMerchandiseInput = {
       create: { name: company },
@@ -28,7 +27,7 @@ export class TransformMerchandisesCreateMerchandiseRequestDtoPipe
       name,
       certification: _certification,
       company: _company,
-      rating: _rating,
+      rating: rating,
       merchandiseHowToConsume: _merchandiseHowToConsume,
     };
     console.log(transformedValue);

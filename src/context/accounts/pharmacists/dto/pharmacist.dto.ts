@@ -1,5 +1,5 @@
-
 export interface PharmacistSignUpDto {
+  imageToUpload: Express.Multer.File[];
   email: string;
   password: string;
   userName: string;
@@ -9,7 +9,6 @@ export interface PharmacistSignUpDto {
   counselingEndTime?: string;
   pharmacistSignUpSecret: string;
 }
-
 
 export interface SignInDto {
   email: string;
