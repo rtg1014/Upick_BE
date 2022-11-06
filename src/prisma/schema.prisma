@@ -8,28 +8,71 @@ datasource db {
 }
 
 model Customer {
-  id                 Int                  @id @default(autoincrement())
-  email              String?              @unique
-  password           String?
-  age                Int?
-  activity           String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  providerId         String?
-  provider           Provider
-  gender             Gender?
-  isBreastFeed       Boolean              @default(false)
-  isPregnant         Boolean              @default(false)
-  name               String?
-  CustomerDetails    CustomerDetails[]
-  MerchandiseLikes   MerchandiseLikes[]
-  PharmacistLikes    PharmacistLikes[]
-  postingLikes       PostingLikes[]
-  TakingMedicine     TakingMedicine[]
-  CustomerToConsider CustomerToConsider[]
-  CustomerPickUps    CustomerPickUps[]
+  id                    Int                     @id @default(autoincrement())
+  email                 String?                 @unique
+  password              String?
+  age                   Int?
+  activity              String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  providerId            String?
+  provider              Provider
+  gender                Gender?
+  isBreastFeed          Boolean                 @default(false)
+  isPregnant            Boolean                 @default(false)
+  name                  String?
+  CustomerDetails       CustomerDetails[]
+  MerchandiseLikes      MerchandiseLikes[]
+  PharmacistLikes       PharmacistLikes[]
+  postingLikes          PostingLikes[]
+  TakingMedicine        TakingMedicine[]
+  CustomerToConsider    CustomerToConsider[]
+  CustomerPickUps       CustomerPickUps[]
+  CustomerPostingFilter CustomerPostingFilter[]
 
   @@unique([provider, providerId])
+}
+
+model CustomerPostingFilter {
+  id                 Int                  @id @default(autoincrement())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  customerId         Int                  @unique
+  customer           Customer             @relation(fields: [customerId], references: [id])
+  gender             Gender?
+  filterToConsider   filterToConsider[]
+  filterToAgeRange   filterToAgeRange[]
+  filterToIngredient filterToIngredient[]
+}
+
+model filterToConsider {
+  id                      Int                   @id @default(autoincrement())
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  customerPostingFilterId Int
+  customerPostingFilter   CustomerPostingFilter @relation(fields: [customerPostingFilterId], references: [id])
+  considerId              Int
+  consider                Consider              @relation(fields: [considerId], references: [id])
+}
+
+model filterToAgeRange {
+  id                      Int                   @id @default(autoincrement())
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  customerPostingFilterId Int
+  customerPostingFilter   CustomerPostingFilter @relation(fields: [customerPostingFilterId], references: [id])
+  ageRangeId              Int
+  ageRange                AgeRange              @relation(fields: [ageRangeId], references: [id])
+}
+
+model filterToIngredient {
+  id                      Int                   @id @default(autoincrement())
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  customerPostingFilterId Int
+  customerPostingFilter   CustomerPostingFilter @relation(fields: [customerPostingFilterId], references: [id])
+  ingredientId            Int
+  ingredient              Ingredient            @relation(fields: [ingredientId], references: [id])
 }
 
 model CustomerPickUps {
@@ -57,11 +100,14 @@ model CustomerToConsider {
 }
 
 model Consider {
-  id                 Int                  @id @default(autoincrement())
-  name               String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  CustomerToConisder CustomerToConsider[]
+  id                      Int                  @id @default(autoincrement())
+  name                    String?
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+  CustomerToConisder      CustomerToConsider[]
+  PostingToConsider       PostingToConsider[]
+  customerPostingFilterId Int?
+  filterToConsider        filterToConsider[]
 }
 
 model CustomerDetails {
@@ -113,8 +159,41 @@ model Posting {
   updatedAt            DateTime               @updatedAt
   pharmacist           Pharmacist             @relation(fields: [pharmacistId], references: [id])
   postingLikes         PostingLikes[]
-  PostingToTag         PostingToTag[]
   MerchandiseToPosting MerchandiseToPosting[]
+  PostingToIngredient  PostingToIngredient[]
+  PostingToAgeRange    PostingToAgeRange[]
+  gender               Gender?
+  PostingToConsider    PostingToConsider[]
+}
+
+model PostingToConsider {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  postingId  Int
+  posting    Posting  @relation(fields: [postingId], references: [id])
+  considerId Int
+  consider   Consider @relation(fields: [considerId], references: [id])
+}
+
+model PostingToIngredient {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  postingId    Int
+  ingredientId Int
+  posting      Posting    @relation(fields: [postingId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+}
+
+model PostingToAgeRange {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  postingId  Int
+  posting    Posting  @relation(fields: [postingId], references: [id])
+  ageRangeId Int
+  ageRange   AgeRange @relation(fields: [ageRangeId], references: [id])
 }
 
 model Tag {
@@ -123,17 +202,6 @@ model Tag {
   updatedAt         DateTime            @updatedAt
   name              String
   MerchandiseEffect MerchandiseEffect[]
-  PostingToTag      PostingToTag[]
-}
-
-model PostingToTag {
-  id        Int      @id @default(autoincrement())
-  tagId     Int
-  postingId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posting   Posting  @relation(fields: [postingId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
 }
 
 model PostingLikes {
@@ -174,6 +242,9 @@ model Ingredient {
   updatedAt               DateTime                  @updatedAt
   name                    String
   MerchandiseToIngredient MerchandiseToIngredient[]
+  PostingToIngredient     PostingToIngredient[]
+  customerPostingFilterId Int?
+  filterToIngredient      filterToIngredient[]
 }
 
 model MerchandiseToIngredient {
@@ -271,6 +342,16 @@ model TakingMedicine {
   merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
 
   @@unique([merchandiseId, customerId])
+}
+
+model AgeRange {
+  id                      Int                 @id @default(autoincrement())
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+  name                    String
+  PostingToAgeRange       PostingToAgeRange[]
+  customerPostingFilterId Int?
+  filterToAgeRange        filterToAgeRange[]
 }
 
 enum TakingExcerciseTimePerAWeek {

@@ -1,7 +1,7 @@
 import { Customer, Pharmacist } from '@prisma/client';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreatePostingDto, Posting } from './dto/postings.dto';
+import { CreatePostingDto } from './dto/postings.dto';
 
 @Injectable()
 export class PostingsService {
@@ -11,14 +11,33 @@ export class PostingsService {
     createPostingDto: CreatePostingDto,
     pharmacist: Pharmacist,
   ) {
-    const { title, content, tags, merchandiseIds } = createPostingDto;
+    const {
+      title,
+      content,
+      merchandiseIds,
+      ingredientIds,
+      ageIds,
+      considerIds,
+      gender,
+    } = createPostingDto;
 
-    if (!title.length || !content.length || !merchandiseIds.length)
+    if (!title.length || !content.length)
       throw new InternalServerErrorException();
 
-    const PostingToMerchandiseIdCreateManyInput = merchandiseIds.map(
+    const postingToMerchandiseCreateManyInput = merchandiseIds.map(
       (merchandiseId) => {
         return { merchandiseId };
+      },
+    );
+    const postingToAgeRangeCreateManyInput = ageIds.map((ageRangeId) => {
+      return { ageRangeId };
+    });
+    const postingToConsiderCreateManyInput = considerIds.map((considerId) => {
+      return { considerId };
+    });
+    const postingToIngredientCreateManyInput = ingredientIds.map(
+      (ingredientId) => {
+        return { ingredientId };
       },
     );
 
@@ -28,43 +47,38 @@ export class PostingsService {
         content,
         pharmacistId: pharmacist.id,
         MerchandiseToPosting: {
-          createMany: { data: PostingToMerchandiseIdCreateManyInput },
+          createMany: { data: postingToMerchandiseCreateManyInput },
         },
+        PostingToAgeRange: {
+          createMany: { data: postingToAgeRangeCreateManyInput },
+        },
+        PostingToConsider: {
+          createMany: { data: postingToConsiderCreateManyInput },
+        },
+        PostingToIngredient: {
+          createMany: { data: postingToIngredientCreateManyInput },
+        },
+        gender,
       },
-    });
-
-    if (tags.length) {
-      for (const name of tags) {
-        let tag = await this.prismaService.tag.findFirst({
-          where: { name },
-        });
-
-        if (!tag) {
-          tag = await this.prismaService.tag.create({
-            data: {
-              name,
-            },
-          });
-        }
-        await this.prismaService.postingToTag.create({
-          data: { postingId: createdPosting.id, tagId: tag.id },
-        });
-      }
-    }
-
-    const _posting = await this.prismaService.posting.findUnique({
-      where: { id: createdPosting.id },
       include: {
-        PostingToTag: { select: { tag: { select: { name: true } } } },
+        MerchandiseToPosting: {
+          select: {
+            merchandise: { select: { Image: { select: { url: true } } } },
+          },
+        },
+        PostingToAgeRange: { select: { ageRange: { select: { name: true } } } },
+        PostingToIngredient: {
+          select: { ingredient: { select: { name: true } } },
+        },
+        PostingToConsider: { select: { consider: { select: { name: true } } } },
       },
     });
 
-    return { result: _posting, message: '칼럼작성 완료!' };
+    return { result: createdPosting, message: '칼럼작성 완료!' };
   }
 
   async getPosting(id: number) {
     const posting = await this.prismaService.posting.findUnique({
-      //TODO: prisma crud 읽어보기
       where: { id },
       include: {
         pharmacist: {
@@ -87,28 +101,28 @@ export class PostingsService {
     return { result: postings, message: '모든 칼럼 조회 완료' };
   }
 
-  async updatePosting(id: number, posting: Posting, pharmacist: Pharmacist) {
-    const { title, content } = posting;
+  // async updatePosting(id: number, posting: Posting, pharmacist: Pharmacist) {
+  //   const { title, content } = posting;
 
-    const _posting = await this.prismaService.posting.findFirst({
-      where: { id, pharmacistId: pharmacist.id },
-    });
+  //   const _posting = await this.prismaService.posting.findFirst({
+  //     where: { id, pharmacistId: pharmacist.id },
+  //   });
 
-    const updatedPosting = await this.prismaService.posting.update({
-      where: { id: _posting.id },
-      data: {
-        title,
-        content,
-      },
-      include: {
-        pharmacist: {
-          select: { userName: true, pharmacyName: true, pharmacyAddress: true },
-        },
-      },
-    });
+  //   const updatedPosting = await this.prismaService.posting.update({
+  //     where: { id: _posting.id },
+  //     data: {
+  //       title,
+  //       content,
+  //     },
+  //     include: {
+  //       pharmacist: {
+  //         select: { userName: true, pharmacyName: true, pharmacyAddress: true },
+  //       },
+  //     },
+  //   });
 
-    return { result: updatedPosting, message: '칼럼이 수정되었습니다' };
-  }
+  //   return { result: updatedPosting, message: '칼럼이 수정되었습니다' };
+  // }
 
   async toggleLike(id: number, customer: Customer) {
     const postingId = id;

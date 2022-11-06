@@ -1,22 +1,30 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { PharmacistSignUpDto, SignInDto } from './dto/pharmacist.dto';
+import {
+  Body,
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { SignInDto, PharmacistSignUpDto } from './dto/pharmacist.dto';
+import { TransformPharmacistsCreatePharmacistSignUpDtoPipe } from './pharmacists.pipe';
 import { PharmacistsService } from './pharmacists.service';
 @Controller('pharmacists')
 export class PharmacistsController {
   constructor(private readonly pharmacistsService: PharmacistsService) {}
 
   @Post('sign-up')
-  signUp(@Body() pharmacistSignUpDto: PharmacistSignUpDto) {
-    return this.pharmacistsService.signUp(pharmacistSignUpDto);
+  @UseInterceptors(FileInterceptor('imageToUpload'))
+  signUp(
+    @UploadedFile() imageToUpload: Express.Multer.File,
+    @Body(new TransformPharmacistsCreatePharmacistSignUpDtoPipe())
+    pharmacistSignUpDto: PharmacistSignUpDto,
+  ) {
+    return this.pharmacistsService.signUp(pharmacistSignUpDto, imageToUpload);
   }
 
   @Post('sign-in')
-  signIn(@Body() signInDto : SignInDto) {
+  signIn(@Body() signInDto: SignInDto) {
     return this.pharmacistsService.signIn(signInDto);
   }
 }
-
-//TODO : 1. customers sign-up, sign-in 구현 및 문서화
-//TODO : 2. 각각 토큰 발급 (예시 -> payload: {type: customer 또는 pharmacist, email: ~~@~.com, 만료시간: 1일})
-//TODO : 3. pharmacists signUp Body값 수정
-//TODO : 4. 만든 모든 API 테스트
