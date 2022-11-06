@@ -130,16 +130,22 @@ export class PostingsService {
           },
         },
       );
-      const ageRangeIds: number[] = postingFilter.filterToAgeRange.map(
-        (filterToAgeRange: filterToAgeRange) => filterToAgeRange.ageRangeId,
-      );
-      const considerIds: number[] = postingFilter.filterToConsider.map(
-        (filterToConsider: filterToConsider) => filterToConsider.considerId,
-      );
-      const ingredientIds: number[] = postingFilter.filterToIngredient.map(
-        (filterToIngredient: filterToIngredient) =>
-          filterToIngredient.ingredientId,
-      );
+      const ageRangeIds: number[] = postingFilter
+        ? postingFilter.filterToAgeRange.map(
+            (filterToAgeRange: filterToAgeRange) => filterToAgeRange.ageRangeId,
+          )
+        : [];
+      const considerIds: number[] = postingFilter
+        ? postingFilter.filterToConsider.map(
+            (filterToConsider: filterToConsider) => filterToConsider.considerId,
+          )
+        : [];
+      const ingredientIds: number[] = postingFilter
+        ? postingFilter.filterToIngredient.map(
+            (filterToIngredient: filterToIngredient) =>
+              filterToIngredient.ingredientId,
+          )
+        : [];
 
       whereArg = {
         PostingToAgeRange: { some: { ageRangeId: { in: ageRangeIds } } },
@@ -157,7 +163,7 @@ export class PostingsService {
         ],
       });
 
-    const postings = await this.prismaService.posting.findMany({
+    let postings = await this.prismaService.posting.findMany({
       where: whereArg,
       include: {
         pharmacist: {
@@ -181,6 +187,35 @@ export class PostingsService {
           ? { postingLikes: { _count: 'desc' } }
           : { createdAt: 'desc' },
     });
+
+    if (!postings.length)
+      postings = await this.prismaService.posting.findMany({
+        include: {
+          pharmacist: {
+            select: {
+              userName: true,
+              pharmacyName: true,
+              pharmacyAddress: true,
+              Image: { select: { url: true } },
+            },
+          },
+          postingLikes: {
+            where: { customerId: customer ? customer.id : null },
+          },
+          MerchandiseToPosting: { select: { merchandise: true } },
+          PostingToAgeRange: {
+            select: { ageRange: { select: { name: true } } },
+          },
+          PostingToConsider: {
+            select: { consider: { select: { name: true } } },
+          },
+          PostingToIngredient: {
+            select: { ingredient: { select: { name: true } } },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
     return { result: postings, message: '칼럼 조회 완료' };
   }
 
