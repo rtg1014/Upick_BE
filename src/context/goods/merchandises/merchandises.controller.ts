@@ -50,7 +50,10 @@ export class MerchandisesController {
     @UploadedFile()
     imageToUpload: Express.Multer.File,
     @Body(new TransformMerchandisesCreateMerchandiseRequestDtoPipe())
-    merchandiseCreateInput: Prisma.MerchandiseCreateInput,
+    merchandiseCreateInput: Prisma.MerchandiseCreateWithoutImageInput & {
+      merchandiseIngredients: string[];
+      merchandiseEffects: string[];
+    },
   ) {
     return this.merchandisesService.createMerchandise(
       merchandiseCreateInput,

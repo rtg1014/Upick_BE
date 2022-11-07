@@ -72,7 +72,7 @@ export class CustomersController {
     return this.customersService.updateCustomer(customer, updateCustomerDto);
   }
 
-  @Get('my-pick/pick-up-list/')
+  @Get('my-pick/pick-up-list')
   @Roles(ROLE.CUSTOMER)
   getMerchandisesHaveToPick(@Customer() customer: TCustomer) {
     return this.customersService.getMerchandisesHaveToPick(customer);
@@ -81,24 +81,24 @@ export class CustomersController {
   @Get('my-pick/pick-up-list/picked')
   @Roles(ROLE.CUSTOMER)
   getMerchandisesIPicked(@Customer() customer: TCustomer) {
-    return this.customersService.getMerchandisesHaveToPick(customer);
+    return this.customersService.getMerchandisesIPicked(customer);
   }
 
   @Get('my-pick/like/merchandises')
   @Roles(ROLE.CUSTOMER)
-  getMerchandisesILike(customer: TCustomer) {
+  getMerchandisesILike(@Customer() customer: TCustomer) {
     return this.customersService.getMerchandisesILike(customer);
   }
 
   @Get('my-pick/like/postings')
   @Roles(ROLE.CUSTOMER)
-  getPostingsILike(customer: TCustomer) {
+  getPostingsILike(@Customer() customer: TCustomer) {
     return this.customersService.getPostingsILike(customer);
   }
 
   @Get('my-pick/like/pharmacists')
   @Roles(ROLE.CUSTOMER)
-  getPharmacistsILike(customer: TCustomer) {
+  getPharmacistsILike(@Customer() customer: TCustomer) {
     return this.customersService.getPharmacistsILike(customer);
   }
 }
