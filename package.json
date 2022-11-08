@@ -12,7 +12,7 @@
     "start": "nest start",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "dotenv -e .env -- pm2 start dist/main.js",
+    "start:prod": "pm2 start dist/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "dependencies": {
