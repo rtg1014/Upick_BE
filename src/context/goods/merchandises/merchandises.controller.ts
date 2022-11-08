@@ -156,4 +156,15 @@ export class MerchandisesController {
   getMerchandise(@Param('merchandiseId', ParseIntPipe) merchandiseId: number) {
     return this.merchandisesService.getMerchandise(merchandiseId);
   }
+  @Post('/:merchandiseId/pick-up')
+  @Roles(ROLE.CUSTOMER)
+  addMerchandiseToPickUpList(
+    @Param('merchandiseId', ParseIntPipe) merchandiseId: number,
+    @Customer() customer: TCustomer,
+  ) {
+    return this.merchandisesService.addMerchandiseToPickUpList(
+      merchandiseId,
+      customer,
+    );
+  }
 }

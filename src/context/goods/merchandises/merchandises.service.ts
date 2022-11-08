@@ -482,4 +482,25 @@ export class MerchandisesService {
 
     return;
   }
+  async addMerchandiseToPickUpList(merchandiseId: number, customer: Customer) {
+    const randomNumber = Math.round(Math.random() + 1);
+    const randomPharmacist = await this.prismaService.pharmacist.findUnique({
+      where: { id: randomNumber },
+    });
+    const pickableAt = new Date();
+    pickableAt.setDate(pickableAt.getDate() + 3);
+
+    const createdPickUp = await this.prismaService.customerPickUps.create({
+      data: {
+        pharmacyAdress: randomPharmacist.pharmacyAddress,
+        pharmacyName: randomPharmacist.pharmacyName,
+        pickableAt,
+        merchandiseId,
+        isPicked: false,
+        customerId: customer.id,
+      },
+    });
+
+    return { result: createdPickUp, message: '픽업 예약 완료' };
+  }
 }
