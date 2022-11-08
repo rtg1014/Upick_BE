@@ -25,6 +25,8 @@ jobs:
             npx pm2 kill
             sudo git restore .
             sudo git pull origin main
+            npm ci
+            npm i dotenv
             npx prisma generate
             npm run build
             npm run start:prod
