@@ -6,12 +6,16 @@ import {
   SignUpDto,
   UpdateCustomerDto,
 } from './dto/customer.dto';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
 import * as qs from 'qs';
 import axios from 'axios';
-import { Provider, Customer } from '@prisma/client';
+import { Provider, Customer, Pharmacist } from '@prisma/client';
 @Injectable()
 export class CustomersService {
   constructor(private prismaService: PrismaService) {}
@@ -238,32 +242,85 @@ export class CustomersService {
     };
   }
 
-  async getMerchandisesHaveToPick(customer: Customer) {
+  async getMerchandisesToPick(customerId: number, customer?: Customer) {
+    if (customer && customer.id !== customerId)
+      throw new UnauthorizedException();
+
     const merchandises = await this.prismaService.merchandise.findMany({
       where: {
-        CustomerPickUps: { some: { customerId: customer.id, isPicked: false } },
+        CustomerPickUps: { some: { customerId, isPicked: false } },
       },
       include: { CustomerPickUps: true },
     });
 
     return {
       result: merchandises,
-      message: '픽업할 상품 조회 완료',
+      message: `${customerId} customer 픽업할 상품 조회 완료`,
     };
   }
 
-  async getMerchandisesIPicked(customer: Customer) {
+  async getMerchandisesIPicked(customerId: number, customer?: Customer) {
+    if (customer && customer.id !== customerId)
+      throw new UnauthorizedException();
+
     const merchandises = await this.prismaService.merchandise.findMany({
       where: {
-        CustomerPickUps: { some: { customerId: customer.id, isPicked: true } },
+        CustomerPickUps: { some: { customerId, isPicked: true } },
       },
       include: { CustomerPickUps: true },
     });
 
     return {
       result: merchandises,
-      message: '픽업한 상품 조회 완료',
+      message: `${customerId} customer 픽업한 상품 조회 완료`,
     };
+  }
+
+  async completePickUp(
+    customerId: number,
+    merchandiseId: number,
+    customer?: Customer,
+    pharmacist?: Pharmacist,
+  ) {
+    const pickup = await this.prismaService.customerPickUps.findFirstOrThrow({
+      where: pharmacist
+        ? {
+            customerId,
+            merchandiseId,
+            pharmacyAdress: pharmacist.pharmacyAddress,
+            pharmacyName: pharmacist.pharmacyName,
+          }
+        : { customerId, merchandiseId },
+    });
+    if (customer && pickup.customerId !== customer.id)
+      throw new UnauthorizedException();
+
+    const updatedPickup = await this.prismaService.customerPickUps.update({
+      where: { id: pickup.id },
+      data: { isPicked: true },
+    });
+
+    return { result: updatedPickup, message: '픽업 완료 상태로 변경' };
+  }
+
+  async cancelPickUp(
+    customerId: number,
+    merchandiseId: number,
+    pharmacist: Pharmacist,
+  ) {
+    const pickUp = await this.prismaService.customerPickUps.findFirstOrThrow({
+      where: {
+        customerId,
+        merchandiseId,
+        pharmacyAdress: pharmacist.pharmacyAddress,
+        pharmacyName: pharmacist.pharmacyName,
+      },
+    });
+    const deletedPickup = await this.prismaService.customerPickUps.delete({
+      where: { id: pickUp.id },
+    });
+
+    return { result: deletedPickup, message: '픽업 취소 완료' };
   }
 
   async getMerchandisesILike(customer: Customer) {

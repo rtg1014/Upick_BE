@@ -174,7 +174,7 @@ export class PostingsService {
             Image: { select: { url: true } },
           },
         },
-        postingLikes: { where: { customerId: customer ? customer.id : null } },
+        postingLikes: { where: customer ? { customerId: customer.id } : {} },
         MerchandiseToPosting: { select: { merchandise: true } },
         PostingToAgeRange: { select: { ageRange: { select: { name: true } } } },
         PostingToConsider: { select: { consider: { select: { name: true } } } },
@@ -200,7 +200,7 @@ export class PostingsService {
             },
           },
           postingLikes: {
-            where: { customerId: customer ? customer.id : null },
+            where: customer ? { customerId: customer.id } : {},
           },
           MerchandiseToPosting: { select: { merchandise: true } },
           PostingToAgeRange: {
