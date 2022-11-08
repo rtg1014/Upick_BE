@@ -4,7 +4,14 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Pharmacist, Customer, Prisma, Gender } from '@prisma/client';
+import {
+  Pharmacist,
+  Customer,
+  Prisma,
+  Gender,
+  Effect,
+  Ingredient,
+} from '@prisma/client';
 import { ImagesService } from 'src/context/common/images/images.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
@@ -21,9 +28,52 @@ export class MerchandisesService {
   ) {}
 
   async createMerchandise(
-    merchandiseCreateWithoutImageInput: Prisma.MerchandiseCreateWithoutImageInput,
+    merchandiseCreateWithoutImageInput: Prisma.MerchandiseCreateWithoutImageInput & {
+      merchandiseIngredients: string[];
+      merchandiseEffects: string[];
+    },
     imageToUpload: Express.Multer.File,
   ) {
+    const { merchandiseIngredients, merchandiseEffects } =
+      merchandiseCreateWithoutImageInput;
+    const quantities: string[] = [];
+    const ingredientPromises = [];
+
+    for (
+      let i = 0;
+      i < merchandiseIngredients.length;
+      i += 2 //['비타민C', '최적']
+    ) {
+      const ingredient = merchandiseIngredients[i];
+      const quantity = merchandiseIngredients[i + 1];
+
+      const createdIngredient = this.prismaService.ingredient.upsert({
+        where: { name: ingredient },
+        create: { name: ingredient },
+        update: {},
+      });
+      ingredientPromises.push(createdIngredient);
+      quantities.push(quantity);
+    }
+
+    const effectsPromises = [];
+    for (const effect of merchandiseEffects) {
+      const promise = this.prismaService.effect.upsert({
+        where: { name: effect },
+        create: { name: effect },
+        update: {},
+      });
+      effectsPromises.push(promise);
+    }
+
+    const createdIngredients: Ingredient[] = await Promise.all(
+      ingredientPromises,
+    );
+    const createdEffects: Effect[] = await Promise.all(effectsPromises);
+
+    delete merchandiseCreateWithoutImageInput.merchandiseIngredients;
+    delete merchandiseCreateWithoutImageInput.merchandiseEffects;
+
     // merchandiseHowToConsume upsert
     const existingMerchandiseHowToConsume =
       await this.prismaService.merchandiseHowToConsume.findFirst({
@@ -59,15 +109,44 @@ export class MerchandisesService {
     const merchandiseImage = await this.imagesService.create(imageToUpload);
 
     // created merchandise
-    const merchandise = await this.prismaService.merchandise.create({
+    const createdMerchandise = await this.prismaService.merchandise.create({
       data: {
         ...merchandiseCreateWithoutImageInput,
         Image: { connect: { id: merchandiseImage.id } },
       },
     });
 
-    // await this.createMerchandiseEffects(merchandise.id, effects);
+    const merchandiseEffectCreateManyInput = createdEffects.map((e) => {
+      return { merchandiseId: createdMerchandise.id, effectId: e.id };
+    });
+    await this.prismaService.merchandiseEffect.createMany({
+      data: merchandiseEffectCreateManyInput,
+    });
 
+    for (let i = 0; i < createdIngredients.length; i++) {
+      await this.prismaService.merchandiseToIngredient.createMany({
+        data: [
+          {
+            merchandiseId: createdMerchandise.id,
+            ingredientId: createdIngredients[i].id,
+            quantity: quantities[i],
+          },
+        ],
+      });
+    }
+
+    const merchandise = await this.prismaService.merchandise.findUnique({
+      where: { id: createdMerchandise.id },
+      include: {
+        Image: { select: { url: true } },
+        company: { select: { name: true } },
+        MerchandiseEffect: { select: { effect: { select: { name: true } } } },
+        merchandiseHowToConsume: { select: { consumption: true } },
+        MerchandiseToIngredient: {
+          select: { ingredient: { select: { name: true } }, quantity: true },
+        },
+      },
+    });
     return { result: merchandise, message: '상품 생성 완료' };
   }
 

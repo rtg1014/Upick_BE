@@ -5,6 +5,9 @@ export interface CreateMerchandiseDto {
   certification: string;
   imageToUpload: Express.Multer.File[];
   merchandiseHowToConsume: string;
+  merchandiseEffects: string;
+  merchandiseIngredients: string;
+  merchandiseDescription: string;
 }
 
 export interface Comment {

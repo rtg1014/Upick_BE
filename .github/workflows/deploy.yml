@@ -23,9 +23,9 @@ jobs:
           script: |
             cd /home/ubuntu/Upick_BE
             npx pm2 kill
+            sudo git restore .
             sudo git pull origin main
             npm ci
-            npx prisma db pull
             npx prisma generate
             npm run build
             npm run start:prod

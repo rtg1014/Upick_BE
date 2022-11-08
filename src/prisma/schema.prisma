@@ -200,7 +200,7 @@ model Effect {
   id                Int                 @id @default(autoincrement())
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
-  name              String
+  name              String              @unique
   MerchandiseEffect MerchandiseEffect[]
 }
 
@@ -224,6 +224,7 @@ model Merchandise {
   updatedAt                 DateTime                  @updatedAt
   rating                    String
   merchandiseHowToConsumeId Int
+  description               String
   company                   Company                   @relation(fields: [companyId], references: [id])
   merchandiseHowToConsume   MerchandiseHowToConsume   @relation(fields: [merchandiseHowToConsumeId], references: [id])
   Comment                   Comment[]
@@ -240,7 +241,7 @@ model Ingredient {
   id                      Int                       @id @default(autoincrement())
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
-  name                    String
+  name                    String                    @unique
   MerchandiseToIngredient MerchandiseToIngredient[]
   PostingToIngredient     PostingToIngredient[]
   customerPostingFilterId Int?
@@ -252,7 +253,6 @@ model MerchandiseToIngredient {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   quantity      String?
-  mercahndiseId Int
   merchandise   Merchandise @relation(fields: [merchandiseId], references: [id])
   ingredientId  Int
   ingredient    Ingredient  @relation(fields: [ingredientId], references: [id])

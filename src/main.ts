@@ -15,7 +15,7 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors({ credentials: true, origin: ['http://localhost:8000'] });
+  app.enableCors({ credentials: true, origin: '*' });
 
   app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());
