@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   Get,
+  Query,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import {
@@ -43,6 +44,11 @@ export class CustomersController {
     return this.customersService.signInKakao(signInKakaoRequestDto);
   }
 
+  @Get('my-pick/taking-medicine')
+  @Roles(ROLE.CUSTOMER)
+  getMerchandisesByKeyword(@Query('keyword') keyword?: string) {
+    return this.customersService.getMerchandisesByKeyword(keyword);
+  }
   @Post('my-pick/taking-medicine/:merchandiseId')
   @Roles(ROLE.CUSTOMER)
   addTakingMedicine(

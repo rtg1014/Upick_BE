@@ -355,4 +355,13 @@ export class CustomersService {
       message: '찜한 약사 조회 완료',
     };
   }
+
+  async getMerchandisesByKeyword(keyword?: string) {
+    const merchandises = await this.prismaService.merchandise.findMany({
+      where: keyword ? { name: { contains: keyword } } : {},
+      select: { name: true },
+    });
+
+    return { result: merchandises, message: `'${keyword}'검색 완료` };
+  }
 }
