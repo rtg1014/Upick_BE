@@ -147,7 +147,6 @@ export class MerchandisesService {
         },
       },
     });
-
     return { result: merchandise, message: '상품 생성 완료' };
   }
 

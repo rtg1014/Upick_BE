@@ -72,6 +72,7 @@ export class CustomersController {
     return this.customersService.updateCustomer(customer, updateCustomerDto);
   }
 
+
   @Get('my-pick/pick-up-list')
   @Roles(ROLE.CUSTOMER)
   getMerchandisesHaveToPick(@Customer() customer: TCustomer) {
