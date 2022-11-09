@@ -370,6 +370,7 @@ export class MerchandisesService {
           },
         ],
       },
+      take:10,
       include: {
         MerchandiseEffect: { select: { effect: { select: { name: true } } } },
         company: { select: { name: true } },
@@ -423,6 +424,7 @@ export class MerchandisesService {
           },
         ],
       },
+      take:10,
       include: {
         MerchandiseLikes: {
           select: { customer: { select: { gender: true } } },
@@ -467,6 +469,7 @@ export class MerchandisesService {
           },
         ],
       },
+      take:10,
       include: {
         MerchandiseLikes: {
           select: {
@@ -526,6 +529,7 @@ export class MerchandisesService {
           },
         ],
       },
+      take:10,
       include: {
         MerchandiseLikes: {
           select: {
@@ -560,7 +564,7 @@ export class MerchandisesService {
     const randomNumbersecond = Math.floor(Math.random() * (1000 - 1 + 1)) + 1;
     const randomNumberthird = Math.floor(Math.random() * (1000 - 1 + 1)) + 1;
     const randomNumberFour = Math.floor(Math.random() * (1000 - 1 + 1)) + 1;
-    const merchandiseFirst = await this.prismaService.merchandise.findMany({
+    const merchandiseFirst = await this.prismaService.merchandise.findUnique({
       where:{
         id:randomNumberFirst
       },
@@ -582,7 +586,7 @@ export class MerchandisesService {
         company:true
       }     
     })
-    const merchandiseSecond = await this.prismaService.merchandise.findMany({
+    const merchandiseSecond = await this.prismaService.merchandise.findUnique({
       where:{
         id:randomNumbersecond
       },
@@ -604,7 +608,7 @@ export class MerchandisesService {
         company:true
       }     
     })
-    const merchandiseThird = await this.prismaService.merchandise.findMany({
+    const merchandiseThird = await this.prismaService.merchandise.findUnique({
       where:{
         id:randomNumberthird
       },
@@ -626,7 +630,7 @@ export class MerchandisesService {
         company:true
       }     
     })
-    const merchandiseFour = await this.prismaService.merchandise.findMany({
+    const merchandiseFour = await this.prismaService.merchandise.findUnique({
       where:{
         id:randomNumberFour
       },
