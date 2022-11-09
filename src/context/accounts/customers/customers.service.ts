@@ -326,6 +326,7 @@ export class CustomersService {
   async getMerchandisesILike(customer: Customer) {
     const merchandises = await this.prismaService.merchandise.findMany({
       where: { MerchandiseLikes: { some: { customerId: customer.id } } },
+      take:10
     });
 
     return {
@@ -360,6 +361,7 @@ export class CustomersService {
     const merchandises = await this.prismaService.merchandise.findMany({
       where: keyword ? { name: { contains: keyword } } : {},
       select: { name: true },
+      take:10
     });
 
     return { result: merchandises, message: `'${keyword}'검색 완료` };
