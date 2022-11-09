@@ -44,9 +44,9 @@ export class PostingsController {
   getPostings(
     @Customer() customer?: TCustomer,
     @Query('keyword') keyword?: string,
-    @Query('orderBy') orderBy?: OrderBy,
+    @Query('orderby') orderby?: OrderBy,
   ) {
-    return this.postingsService.getPostings(customer, orderBy, keyword);
+    return this.postingsService.getPostings(customer, orderby, keyword);
   }
 
   // @Patch(':id')

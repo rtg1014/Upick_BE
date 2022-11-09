@@ -116,7 +116,7 @@ export class PostingsService {
     return { result: posting, message: `${id}번 칼럼 조회 완료` };
   }
 
-  async getPostings(customer?: Customer, orderBy?: OrderBy, keyword?: string) {
+  async getPostings(customer?: Customer, orderby?: OrderBy, keyword?: string) {
     let whereArg = {};
     let postingFilter;
     if (customer) {
@@ -174,8 +174,12 @@ export class PostingsService {
             Image: { select: { url: true } },
           },
         },
-        postingLikes: { where: customer ? { customerId: customer.id } : {} },
-        MerchandiseToPosting: { select: { merchandise: true } },
+        postingLikes: true,
+        MerchandiseToPosting: {
+          include: {
+            merchandise: { include: { Image: { select: { url: true } } } },
+          },
+        },
         PostingToAgeRange: { select: { ageRange: { select: { name: true } } } },
         PostingToConsider: { select: { consider: { select: { name: true } } } },
         PostingToIngredient: {
@@ -183,7 +187,7 @@ export class PostingsService {
         },
       },
       orderBy:
-        orderBy === OrderBy.likes
+        orderby === OrderBy.likes
           ? { postingLikes: { _count: 'desc' } }
           : { createdAt: 'desc' },
     });
@@ -199,10 +203,12 @@ export class PostingsService {
               Image: { select: { url: true } },
             },
           },
-          postingLikes: {
-            where: customer ? { customerId: customer.id } : {},
+          postingLikes: true,
+          MerchandiseToPosting: {
+            include: {
+              merchandise: { include: { Image: { select: { url: true } } } },
+            },
           },
-          MerchandiseToPosting: { select: { merchandise: true } },
           PostingToAgeRange: {
             select: { ageRange: { select: { name: true } } },
           },
@@ -213,7 +219,10 @@ export class PostingsService {
             select: { ingredient: { select: { name: true } } },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy:
+          orderby === OrderBy.likes
+            ? { postingLikes: { _count: 'desc' } }
+            : { createdAt: 'desc' },
       });
 
     return { result: postings, message: '칼럼 조회 완료' };
@@ -256,8 +265,18 @@ export class PostingsService {
             postingId_customerId: { customerId: customer.id, postingId },
           },
         })
-      : await this.prismaService.postingLikes.create({
-          data: { customerId: customer.id, postingId },
+      : await this.prismaService.customer.update({
+          where: { id: customer.id },
+          data: {
+            postingLikes: {
+              connectOrCreate: {
+                where: {
+                  postingId_customerId: { customerId: customer.id, postingId },
+                },
+                create: { postingId },
+              },
+            },
+          },
         });
 
     return { result: updatedLike, message };

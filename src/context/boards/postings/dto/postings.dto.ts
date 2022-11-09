@@ -11,6 +11,6 @@ export interface CreatePostingDto {
 }
 
 export enum OrderBy {
-  likes,
-  latest,
+  likes = 'like',
+  latest = 'latest',
 }

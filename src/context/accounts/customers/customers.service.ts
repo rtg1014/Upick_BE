@@ -249,7 +249,7 @@ export class CustomersService {
       where: {
         CustomerPickUps: { some: { customerId, isPicked: false } },
       },
-      include: { CustomerPickUps: true },
+      include: { CustomerPickUps: true, Image: { select: { url: true } } },
     });
 
     return {
@@ -266,7 +266,7 @@ export class CustomersService {
       where: {
         CustomerPickUps: { some: { customerId, isPicked: true } },
       },
-      include: { CustomerPickUps: true },
+      include: { CustomerPickUps: true, Image: { select: { url: true } } },
     });
 
     return {
@@ -326,6 +326,7 @@ export class CustomersService {
     const merchandises = await this.prismaService.merchandise.findMany({
       where: { MerchandiseLikes: { some: { customerId: customer.id } } },
       take: 10,
+      include: { MerchandiseLikes: true, Image: { select: { url: true } } },
     });
 
     return {
@@ -337,8 +338,10 @@ export class CustomersService {
   async getPostingsILike(customer: Customer) {
     const postings = await this.prismaService.posting.findMany({
       where: { postingLikes: { some: { customerId: customer.id } } },
+      include: {
+        pharmacist: { select: { userName: true, pharmacyName: true } },
+      },
     });
-
     return {
       result: postings,
       message: '찜한 칼럼 조회 완료',
@@ -348,6 +351,7 @@ export class CustomersService {
   async getPharmacistsILike(customer: Customer) {
     const pharmacists = await this.prismaService.pharmacist.findMany({
       where: { PharmacistLikes: { some: { customerId: customer.id } } },
+      include: { Image: { select: { url: true } }, PharmacistLikes: true },
     });
 
     return {
@@ -364,5 +368,10 @@ export class CustomersService {
     });
 
     return { result: merchandises, message: `'${keyword}'검색 완료` };
+  }
+
+  async getMe(customer: Customer) {
+    delete customer.password;
+    return { result: customer, message: `토큰 해독 완료` };
   }
 }

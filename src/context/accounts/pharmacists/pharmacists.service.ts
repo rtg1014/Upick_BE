@@ -9,7 +9,7 @@ import { PharmacistSignUpDto, SignInDto } from './dto/pharmacist.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
 import { ImagesService } from 'src/context/common/images/images.service';
-import { Prisma } from '@prisma/client';
+import { Customer, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PharmacistsService {
@@ -94,5 +94,23 @@ export class PharmacistsService {
     const token = sign(payload, secret, { expiresIn });
 
     return { result: token, message: 'Login success' };
+  }
+
+  async toggleLikePharmacist(pharmacistId: number, customer: Customer) {
+    const like = await this.prismaService.pharmacistLikes.findFirst({
+      where: { customerId: customer.id, pharmacistId },
+    });
+
+    const message = like ? '좋아요 취소 완료' : '좋아요 완료';
+
+    const updatedLike = like
+      ? await this.prismaService.pharmacistLikes.deleteMany({
+          where: { customerId: customer.id, pharmacistId },
+        })
+      : await this.prismaService.pharmacistLikes.create({
+          data: { customerId: customer.id, pharmacistId },
+        });
+
+    return { result: updatedLike, message };
   }
 }
