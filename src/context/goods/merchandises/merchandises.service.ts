@@ -314,12 +314,12 @@ export class MerchandisesService {
   ) {
     const merchandises = await this.prismaService.merchandise.findMany({
       where: {
-        OR:[
+        OR: [
           {
-            name:{
-              contains:keyword
-            }
-          }
+            name: {
+              contains: keyword,
+            },
+          },
         ],
         MerchandiseLikes: {
           some: { customer: { age: { gte: minAge, lte: maxAge } } },
@@ -370,7 +370,7 @@ export class MerchandisesService {
           },
         ],
       },
-      take:10,
+      take: 10,
       include: {
         MerchandiseEffect: { select: { effect: { select: { name: true } } } },
         company: { select: { name: true } },
@@ -424,7 +424,7 @@ export class MerchandisesService {
           },
         ],
       },
-      take:10,
+      take: 10,
       include: {
         MerchandiseLikes: {
           select: { customer: { select: { gender: true } } },
@@ -469,7 +469,7 @@ export class MerchandisesService {
           },
         ],
       },
-      take:10,
+      take: 10,
       include: {
         MerchandiseLikes: {
           select: {
@@ -529,7 +529,7 @@ export class MerchandisesService {
           },
         ],
       },
-      take:10,
+      take: 10,
       include: {
         MerchandiseLikes: {
           select: {
@@ -557,103 +557,39 @@ export class MerchandisesService {
 
     return { result: _merchandises, message: '건강고민별 조회 완료!' };
   }
-  
 
-  async getrecentlyReadMerchandise(){
-    const randomNumberFirst = Math.floor(Math.random() * (1000 - 1 + 1)) + 1;
-    const randomNumbersecond = Math.floor(Math.random() * (1000 - 1 + 1)) + 1;
-    const randomNumberthird = Math.floor(Math.random() * (1000 - 1 + 1)) + 1;
-    const randomNumberFour = Math.floor(Math.random() * (1000 - 1 + 1)) + 1;
-    const merchandiseFirst = await this.prismaService.merchandise.findUnique({
-      where:{
-        id:randomNumberFirst
+  async getrecentlyReadMerchandise() {
+    const randomNumbers = [];
+    for (let i = 1; i <= 4; i++) {
+      randomNumbers.push(Math.floor(Math.random() * 900) + 1);
+    }
+    const merchandises = await this.prismaService.merchandise.findMany({
+      where: {
+        id: { in: randomNumbers },
       },
-      include:{
-        MerchandiseEffect:{
-          select:{
-            merchandise:{
-              select:{
-                name:true
-              }
-            }
-          }
+      include: {
+        MerchandiseEffect: {
+          select: {
+            merchandise: {
+              select: {
+                name: true,
+              },
+            },
+          },
         },
-        Image:{
-          select:{
-            id:true
-          }
+        Image: {
+          select: {
+            id: true,
+          },
         },
-        company:true
-      }     
-    })
-    const merchandiseSecond = await this.prismaService.merchandise.findUnique({
-      where:{
-        id:randomNumbersecond
+        company: true,
       },
-      include:{
-        MerchandiseEffect:{
-          select:{
-            merchandise:{
-              select:{
-                name:true
-              }
-            }
-          }
-        },
-        Image:{
-          select:{
-            id:true
-          }
-        },
-        company:true
-      }     
-    })
-    const merchandiseThird = await this.prismaService.merchandise.findUnique({
-      where:{
-        id:randomNumberthird
-      },
-      include:{
-        MerchandiseEffect:{
-          select:{
-            merchandise:{
-              select:{
-                name:true
-              }
-            }
-          }
-        },
-        Image:{
-          select:{
-            id:true
-          }
-        },
-        company:true
-      }     
-    })
-    const merchandiseFour = await this.prismaService.merchandise.findUnique({
-      where:{
-        id:randomNumberFour
-      },
-      include:{
-        MerchandiseEffect:{
-          select:{
-            merchandise:{
-              select:{
-                name:true
-              }
-            }
-          }
-        },
-        Image:{
-          select:{
-            id:true
-          }
-        },
-        company:true
-      }     
-    })
-    
-    return {result: {merchandiseFirst,merchandiseSecond,merchandiseThird,merchandiseFour}, message : "최근 조회한 영양제 리스트 조회 완료! (랜덤 영양제)"}
+    });
+
+    return {
+      result: merchandises,
+      message: '최근 조회한 영양제 리스트 조회 완료! (랜덤 영양제)',
+    };
   }
 
   async addMerchandiseToPickUpList(merchandiseId: number, customer: Customer) {

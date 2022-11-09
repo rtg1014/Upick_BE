@@ -228,14 +228,13 @@ export class CustomersService {
     });
     const randomNumbers = [];
     for (let i = 0; i < 4; i++) {
-      const randomNumber = Math.round(Math.random() * 10) + 1;
+      const randomNumber = Math.round(Math.random() * 900) + 1;
       randomNumbers.push(randomNumber);
     }
     const merchandises = await this.prismaService.merchandise.findMany({
       where: { id: { in: randomNumbers } },
       select: { id: true, Image: true, company: true, name: true },
     });
-
     return {
       result: { _customer, merchandises },
       message: '마이픽 조회 완료',
@@ -326,7 +325,7 @@ export class CustomersService {
   async getMerchandisesILike(customer: Customer) {
     const merchandises = await this.prismaService.merchandise.findMany({
       where: { MerchandiseLikes: { some: { customerId: customer.id } } },
-      take:10
+      take: 10,
     });
 
     return {
@@ -361,7 +360,7 @@ export class CustomersService {
     const merchandises = await this.prismaService.merchandise.findMany({
       where: keyword ? { name: { contains: keyword } } : {},
       select: { name: true },
-      take:10
+      take: 10,
     });
 
     return { result: merchandises, message: `'${keyword}'검색 완료` };
