@@ -171,4 +171,10 @@ export class CustomersController {
   getPharmacistsILike(@Customer() customer: TCustomer) {
     return this.customersService.getPharmacistsILike(customer);
   }
+
+  @Get('me')
+  @Roles(ROLE.CUSTOMER)
+  getMe(@Customer() customer: TCustomer) {
+    return this.customersService.getMe(customer);
+  }
 }
