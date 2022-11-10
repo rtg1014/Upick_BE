@@ -44,6 +44,7 @@ export class CustomersController {
   ) {
     const { result } = await this.customersService.customerSignIn(signInDto);
     response.cookie('accessToken', result, { domain: COOKIE_DOMAIN });
+
     return { result };
   }
 
