@@ -4,10 +4,11 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import * as cookieParser from 'cookie-parser';
-import fs from 'fs';
+import * as fs from 'fs';
+
 const httpsOptions = {
-  key: fs.readFileSync('./secrets/private-key.pem'),
-  cert: fs.readFileSync('./secrets/public-certificate.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/upickapi.shop/fullchain.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/upickapi.shop/privkey.pem'),
 };
 
 async function bootstrap() {
@@ -27,6 +28,6 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
-  await app.listen(3000);
+  await app.listen(443);
 }
 bootstrap();
