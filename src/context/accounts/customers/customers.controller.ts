@@ -43,7 +43,8 @@ export class CustomersController {
     @Body() signInDto: SignInDto,
   ) {
     const { result } = await this.customersService.customerSignIn(signInDto);
-   
+    response.cookie('accessToken', result, { domain: COOKIE_DOMAIN });
+
     return { result };
   }
 
