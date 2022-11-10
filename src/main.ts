@@ -15,6 +15,7 @@ const httpsOptions = {
     '/etc/letsencrypt/live/upickapi.shop/privkey.pem',
     'utf8',
   ),
+  ca: fs.readFileSync('/etc/letsencrypt/live/upickapi.shop/chain.pem', 'utf8')
 };
 
 async function bootstrap() {
