@@ -7,14 +7,9 @@ import * as cookieParser from 'cookie-parser';
 import * as fs from 'fs';
 
 const httpsOptions = {
-  key: fs.readFileSync(
-    '/etc/letsencrypt/live/upickapi.shop/fullchain.pem',
-    'utf8',
-  ),
-  cert: fs.readFileSync(
-    '/etc/letsencrypt/live/upickapi.shop/privkey.pem',
-    'utf8',
-  ),
+  key: fs.readFileSync('key.pem', 'utf8'),
+  cert: fs.readFileSync('cert.pem', 'utf8'),
+  passphrase: process.env.PASS_KEY,
 };
 
 async function bootstrap() {
