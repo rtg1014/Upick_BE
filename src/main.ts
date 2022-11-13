@@ -4,17 +4,17 @@ import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import * as cookieParser from 'cookie-parser';
-//import * as fs from 'fs';
+import * as fs from 'fs';
 
-// const httpsOptions = {
-//   key: fs.readFileSync(),
-//   cert: fs.readFileSync(),
-//   passphrase: process.env.PASS_KEY,
-// };
+const httpsOptions = {
+  key: fs.readFileSync('/etc/letsencrypt/live/upickapi.shop/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/upickapi.shop/fullchain.pem'),
+  passphrase: process.env.PASS_KEY,
+};
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    //httpsOptions,
+    httpsOptions,
   });
   app.useGlobalPipes(
     new ValidationPipe({
