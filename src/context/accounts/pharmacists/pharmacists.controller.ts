@@ -52,4 +52,9 @@ export class PharmacistsController {
     return this.pharmacistsService.toggleLikePharmacist(pharmacistId, customer);
   }
 
+  @Get('homeTown-Pharmacist')
+  @Roles(ROLE.CUSTOMER)
+  getAllMerchandise(){
+    return this.pharmacistsService.getAllMerchandise()
+  }
 }
