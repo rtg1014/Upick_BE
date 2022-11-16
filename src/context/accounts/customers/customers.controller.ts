@@ -53,6 +53,7 @@ export class CustomersController {
   async signInKakao(
     @Res({ passthrough: true }) response: Response,
     @Body() code: string,
+
   ) {
     console.log(code);
     const { result } = await this.customersService.signInKakao(code);
