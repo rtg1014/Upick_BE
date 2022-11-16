@@ -58,17 +58,17 @@ export class CustomersService {
     return { result: token, message: '로그인 완료' };
   }
 
-  async signInKakao(_code: string) {
+  async signInKakao(code: string) {
     const redirectUri = process.env.REDIRECT_URI;
 
-    if (!_code || !redirectUri) throw new Error('?');
+    if (!code || !redirectUri) throw new Error('?');
     const client_id = process.env.CLIENT_ID;
     const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
     const data = qs.stringify({
       grant_type: 'authorization_code',
       client_id: client_id,
       redirect_uri: redirectUri,
-      _code,
+      code,
     });
     const kakaoTokenOptions = {
       headers: {
