@@ -7,7 +7,8 @@ import {
   Put,
   Param,
   ParseIntPipe,
-  Get
+  Get,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ROLE } from 'src/constant/account.constant';
@@ -39,8 +40,8 @@ export class PharmacistsController {
 
   @Get('/')
   @Roles(ROLE.CUSTOMER)
-  getAllPharmacists(){
-    return this.pharmacistsService.getAllPharmacists()
+  getAllPharmacists() {
+    return this.pharmacistsService.getAllPharmacists();
   }
 
   @Put('/:pharmacistId/like')
@@ -52,4 +53,8 @@ export class PharmacistsController {
     return this.pharmacistsService.toggleLikePharmacist(pharmacistId, customer);
   }
 
+  @Get('/search')
+  searchPharmacists(@Query('keyword') keyword: string) {
+    return this.pharmacistsService.searchPharmacists(keyword);
+  }
 }
