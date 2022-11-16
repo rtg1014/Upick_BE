@@ -53,10 +53,12 @@ export class CustomersController {
   async signInKakao(
     @Res({ passthrough: true }) response: Response,
     @Body() code: string,
+
   ) {
     const _code = Object.keys(code)[0];
     console.log(_code);
     console.log(typeof _code);
+
     const { result } = await this.customersService.signInKakao(_code);
 
     response.cookie('accessToken', result, { domain: COOKIE_DOMAIN });
