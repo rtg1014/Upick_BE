@@ -52,17 +52,14 @@ export class CustomersController {
   async signInKakao(
     @Res({ passthrough: true }) response: Response,
     @Body('code') code: string,
-    @Body('redirectUri') redirectUri: string,
+    //@Body('redirectUri') redirectUri: string,
   ) {
     // const signInKakaoRequestDto: SignInKakaoRequestDto = {
     //   code,
     //   redirectUri,
     // };
 
-    const { result } = await this.customersService.signInKakao(
-      code,
-      redirectUri,
-    );
+    const { result } = await this.customersService.signInKakao(code);
 
     response.cookie('accessToken', result, { domain: COOKIE_DOMAIN });
 
