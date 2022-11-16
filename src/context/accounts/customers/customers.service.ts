@@ -13,10 +13,7 @@ import axios from 'axios';
 import { Provider, Customer, Pharmacist } from '@prisma/client';
 @Injectable()
 export class CustomersService {
-  private axiosClient;
-  constructor(private prismaService: PrismaService) {
-    this.axiosClient = axios.create();
-  }
+  constructor(private prismaService: PrismaService) {}
 
   async customerSignup(signUpDto: SignUpDto) {
     const { email, password, name, confirmPassword } = signUpDto;
@@ -79,7 +76,7 @@ export class CustomersService {
       },
     };
 
-    const kakaoToken = await this.axiosClient
+    const kakaoToken = await axios
       .post(kakaoTokenUrl, data, kakaoTokenOptions)
       .then((res) => res.data.access_token);
 
@@ -88,7 +85,7 @@ export class CustomersService {
       headers: { Authorization: `Bearer ${kakaoToken}` },
     };
 
-    const kakaoId = await this.axiosClient
+    const kakaoId = await axios
       .get(kakaoIdUrl, kakaoIdOptions)
       .then((res) => String(res.data.id));
 
