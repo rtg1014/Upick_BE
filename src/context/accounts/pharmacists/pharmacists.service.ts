@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtPayload, sign } from 'jsonwebtoken';
 import { ImagesService } from 'src/context/common/images/images.service';
 import { Customer, Prisma } from '@prisma/client';
+import { tagsOnlyForPharmacist } from './pharmacists.constant';
 
 @Injectable()
 export class PharmacistsService {
@@ -112,20 +113,41 @@ export class PharmacistsService {
         });
 
     return { result: updatedLike, message };
-   }
+  }
 
-   async getAllPharmacists(){
+  async getAllPharmacists() {
     const pharmacists = await this.prismaService.pharmacist.findMany({
-      include:{
-        Image:{
-          select:{
-            url:true
-          }
-        }
-      }
-    })
+      include: {
+        Image: {
+          select: {
+            url: true,
+          },
+        },
+      },
+    });
+    pharmacists.forEach((pharmacist) => {
+      let pharmacistTags;
+      if (pharmacist.id === 6)
+        pharmacistTags = [tagsOnlyForPharmacist[0], tagsOnlyForPharmacist[1]];
+      if (pharmacist.id === 7)
+        pharmacistTags = [tagsOnlyForPharmacist[2], tagsOnlyForPharmacist[3]];
+      if (pharmacist.id === 8)
+        pharmacistTags = [tagsOnlyForPharmacist[4], tagsOnlyForPharmacist[5]];
+      if (pharmacist.id === 10)
+        pharmacistTags = [tagsOnlyForPharmacist[5], tagsOnlyForPharmacist[7]];
+      if (pharmacist.id === 11)
+        pharmacistTags = [tagsOnlyForPharmacist[8], tagsOnlyForPharmacist[9]];
+      if (pharmacist.id === 12)
+        pharmacistTags = [tagsOnlyForPharmacist[1], tagsOnlyForPharmacist[7]];
+
+      Object.assign(pharmacist, {
+        pharmacyCoordinate: '37.239961, 127.081610',
+        pharmacistTags,
+      });
+    });
     return {
-      result:pharmacists, message : "우리동네 약사들 조회 완료!"
-    }
-   }
+      result: pharmacists,
+      message: '우리동네 약사들 조회 완료!',
+    };
+  }
 }

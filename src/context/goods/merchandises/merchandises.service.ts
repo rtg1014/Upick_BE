@@ -334,6 +334,15 @@ export class MerchandisesService {
             name: true,
           },
         },
+        MerchandiseToIngredient:{
+          select:{
+            ingredient:{
+              select:{
+                name:true
+              }
+            }
+          }
+        }
       },
     });
 
@@ -391,6 +400,15 @@ export class MerchandisesService {
           },
         },
         Image: { select: { url: true } },
+        MerchandiseToIngredient:{
+          select:{
+            ingredient:{
+              select:{
+                name:true
+              }
+            }
+          }
+        }
       },
     });
 
@@ -444,6 +462,15 @@ export class MerchandisesService {
             name: true,
           },
         },
+        MerchandiseToIngredient:{
+          select:{
+            ingredient:{
+              select:{
+                name:true
+              }
+            }
+          }
+        }
       },
     });
 
@@ -505,6 +532,15 @@ export class MerchandisesService {
             name: true,
           },
         },
+        MerchandiseToIngredient:{
+          select:{
+            ingredient:{
+              select:{
+                name:true
+              }
+            }
+          }
+        }
       },
     });
 
@@ -585,6 +621,15 @@ export class MerchandisesService {
         company: {
           select: { name: true },
         },
+        MerchandiseToIngredient:{
+          select:{
+            ingredient:{
+              select:{
+                name:true
+              }
+            }
+          }
+        }
       },
     });
 
@@ -631,7 +676,7 @@ export class MerchandisesService {
           select: {
             name: true,
           },
-        },
+        },  
       },
     });
 
