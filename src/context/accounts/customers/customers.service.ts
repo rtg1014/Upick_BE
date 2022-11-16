@@ -60,7 +60,6 @@ export class CustomersService {
 
   async signInKakao(code: string) {
     const redirectUri = process.env.REDIRECT_URI;
-    console.log(code, redirectUri);
 
     if (!code || !redirectUri) throw new Error('?');
     const client_id = process.env.CLIENT_ID;
