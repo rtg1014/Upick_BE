@@ -10,11 +10,12 @@ import {
   Get,
   Query,
   Res,
+  Req,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import {
   SignInDto,
-  SignInKakaoRequestDto,
+  //SignInKakaoRequestDto,
   UpdateCustomerDto,
   SignUpDto,
 } from './dto/customer.dto';
@@ -51,13 +52,10 @@ export class CustomersController {
   @Post('sign-in/kakao')
   async signInKakao(
     @Res({ passthrough: true }) response: Response,
-    @Body('code') code: string,
-    //@Body('redirectUri') redirectUri: string,
+    @Req() req,
   ) {
-    // const signInKakaoRequestDto: SignInKakaoRequestDto = {
-    //   code,
-    //   redirectUri,
-    // };
+    const code = req.body;
+
 
     const { result } = await this.customersService.signInKakao(code);
 

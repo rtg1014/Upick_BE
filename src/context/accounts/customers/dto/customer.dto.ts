@@ -10,10 +10,10 @@ export interface SignUpDto {
   confirmPassword: string;
 }
 
-export interface SignInKakaoRequestDto {
-  code: string;
-  redirectUri: string;
-}
+// export interface SignInKakaoRequestDto {
+//   code: string;
+//   redirectUri: string;
+// }
 
 export interface UpdateCustomerDto {
   name?: string;
