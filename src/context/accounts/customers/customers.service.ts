@@ -1,11 +1,6 @@
 import { ROLE } from 'src/constant/account.constant';
 import { PrismaService } from 'src/prisma/prisma.service';
-import {
-  SignInDto,
-  SignInKakaoRequestDto,
-  SignUpDto,
-  UpdateCustomerDto,
-} from './dto/customer.dto';
+import { SignInDto, SignUpDto, UpdateCustomerDto } from './dto/customer.dto';
 import {
   Injectable,
   BadRequestException,
@@ -64,8 +59,6 @@ export class CustomersService {
   }
 
   async signInKakao(code: string) {
-    // const { code, redirectUri } = signInKakaoRequestDto;
-    // console.log(signInKakaoRequestDto);
     const redirectUri = process.env.REDIRECT_URI;
     if (!code || !redirectUri) throw new Error('?');
     const client_id = process.env.CLIENT_ID;
