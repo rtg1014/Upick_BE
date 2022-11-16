@@ -13,7 +13,10 @@ import axios from 'axios';
 import { Provider, Customer, Pharmacist } from '@prisma/client';
 @Injectable()
 export class CustomersService {
-  constructor(private prismaService: PrismaService) {}
+  private axiosClient;
+  constructor(private prismaService: PrismaService) {
+    this.axiosClient = axios.create();
+  }
 
   async customerSignup(signUpDto: SignUpDto) {
     const { email, password, name, confirmPassword } = signUpDto;
@@ -58,10 +61,9 @@ export class CustomersService {
     return { result: token, message: '로그인 완료' };
   }
 
-
   async signInKakao(code: string) {
     const redirectUri = process.env.REDIRECT_URI;
-    
+
     if (!code || !redirectUri) throw new Error('?');
     const client_id = process.env.CLIENT_ID;
     const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
@@ -77,7 +79,7 @@ export class CustomersService {
       },
     };
 
-    const kakaoToken = await axios
+    const kakaoToken = await this.axiosClient
       .post(kakaoTokenUrl, data, kakaoTokenOptions)
       .then((res) => res.data.access_token);
 
@@ -86,7 +88,7 @@ export class CustomersService {
       headers: { Authorization: `Bearer ${kakaoToken}` },
     };
 
-    const kakaoId = await axios
+    const kakaoId = await this.axiosClient
       .get(kakaoIdUrl, kakaoIdOptions)
       .then((res) => String(res.data.id));
 
