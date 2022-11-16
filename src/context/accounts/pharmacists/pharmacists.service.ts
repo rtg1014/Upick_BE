@@ -140,6 +140,13 @@ export class PharmacistsService {
           { pharmacyName: { contains: keyword } },
         ],
       },
+      include: {
+        Image: {
+          select: {
+            url: true,
+          },
+        },
+      },
     });
     const result = this.assignCoordinateAndTagsToPharmacist(pharmacists);
 
@@ -169,6 +176,7 @@ export class PharmacistsService {
         pharmacyCoordinate: '37.239961, 127.081610',
         pharmacistTags,
       });
+      delete pharmacist.password;
     });
 
     return pharmacists;
