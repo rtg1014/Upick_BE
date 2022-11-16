@@ -135,8 +135,10 @@ export class PharmacistsService {
   async searchPharmacists(keyword: string) {
     const pharmacists = await this.prismaService.pharmacist.findMany({
       where: {
-        userName: { contains: keyword },
-        pharmacyName: { contains: keyword },
+        OR: [
+          { userName: { contains: keyword } },
+          { pharmacyName: { contains: keyword } },
+        ],
       },
     });
     const result = this.assignCoordinateAndTagsToPharmacist(pharmacists);
