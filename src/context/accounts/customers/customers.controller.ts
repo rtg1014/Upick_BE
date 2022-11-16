@@ -56,6 +56,7 @@ export class CustomersController {
   ) {
     const code = req.body;
 
+
     const { result } = await this.customersService.signInKakao(code);
 
     response.cookie('accessToken', result, { domain: COOKIE_DOMAIN });
