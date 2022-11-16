@@ -75,7 +75,7 @@ export class CustomersService {
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
       },
     };
-
+    console.log('hi');
     const kakaoToken = await axios
       .post(kakaoTokenUrl, data, kakaoTokenOptions)
       .then((res) => res.data.access_token);
