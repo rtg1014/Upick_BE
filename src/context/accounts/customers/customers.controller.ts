@@ -52,7 +52,7 @@ export class CustomersController {
   @Post('sign-in/kakao')
   async signInKakao(
     @Res({ passthrough: true }) response: Response,
-    @Body('code') code: string,
+    @Body() code: string,
   ) {
     console.log(code);
     const { result } = await this.customersService.signInKakao(code);
