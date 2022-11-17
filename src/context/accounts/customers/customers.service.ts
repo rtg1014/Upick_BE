@@ -81,7 +81,8 @@ export class CustomersService {
     const kakaoToken = await axios
       .post(kakaoTokenUrl, data, kakaoTokenOptions)
       .catch((e) => {
-        console.log(1111, e.res);
+        console.log(1111, e);
+        console.log(2222, e.response);
       });
     // .then((res) => res.data.access_token);
 
