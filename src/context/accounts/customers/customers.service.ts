@@ -76,9 +76,8 @@ export class CustomersService {
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
       },
     };
-
     const kakaoToken = await axios
-      .post(kakaoTokenUrl, data, kakaoTokenOptions)
+      .post(kakaoTokenUrl, { data }, kakaoTokenOptions)
       .then((res) => res.data.access_token);
 
     const kakaoIdUrl = 'https://kapi.kakao.com/v1/user/access_token_info';
