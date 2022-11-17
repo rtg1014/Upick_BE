@@ -11,6 +11,7 @@ import { JwtPayload, sign } from 'jsonwebtoken';
 import * as qs from 'qs';
 import axios from 'axios';
 import { Provider, Customer, Pharmacist } from '@prisma/client';
+import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class CustomersService {
   constructor(private prismaService: PrismaService) {}
@@ -63,32 +64,37 @@ export class CustomersService {
 
     if (!code || !redirectUri) throw new Error('?');
     const client_id = process.env.CLIENT_ID;
-    //const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
+    const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
     const data = qs.stringify({
       grant_type: 'authorization_code',
       client_id: client_id,
       redirect_uri: redirectUri,
       code,
     });
-    const kakaoTokenOptions = {
-      headers: {
-        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-      },
+    const headers = {
+      'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
     };
-    console.log('0');
-    const kakaoToken = await axios
-      .post('https://kauth.kakao.com/oauth/token', data, kakaoTokenOptions)
-      .then((res) => res.data.access_token);
-    console.log('1');
+
+    // const kakaoToken = await axios
+    //   .post(kakaoTokenUrl, data, headers)
+    //   .then((res) => res.data.access_token);
+
+    const kakaoToken = await axios({
+      method: 'POST',
+      url: kakaoTokenUrl,
+      headers,
+      data,
+    }).then((res) => res.data.access_token);
+
     const kakaoIdUrl = 'https://kapi.kakao.com/v1/user/access_token_info';
     const kakaoIdOptions = {
       headers: { Authorization: `Bearer ${kakaoToken}` },
     };
-    console.log('2');
+
     const kakaoId = await axios
       .get(kakaoIdUrl, kakaoIdOptions)
       .then((res) => String(res.data.id));
-    console.log('3');
+
     const customer = await this.prismaService.customer.upsert({
       where: {
         provider_providerId: { provider: Provider.kakao, providerId: kakaoId },
@@ -96,7 +102,7 @@ export class CustomersService {
       create: { provider: Provider.kakao, providerId: kakaoId },
       update: {},
     });
-    console.log('4');
+
     const token = this.createToken(customer);
     return { result: token, message: '카카오 로그인 완료' };
   }
