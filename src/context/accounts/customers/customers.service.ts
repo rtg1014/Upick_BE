@@ -71,26 +71,21 @@ export class CustomersService {
       redirect_uri: redirectUri,
       code,
     });
-    const headers = {
-      'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+    const kakaoTokenOptions = {
+      headers: {
+        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+      },
     };
 
-    // const kakaoToken = await axios
-    //   .post(kakaoTokenUrl, data, headers)
-    //   .then((res) => res.data.access_token);
+    const kakaoToken = await axios
+      .post(kakaoTokenUrl, data, kakaoTokenOptions)
+      .then((res) => res.data.access_token);
 
-    const kakaoToken = await axios({
-      method: 'POST',
-      url: kakaoTokenUrl,
-      headers,
-      data,
-    }).then((res) => res.data.access_token);
-   
     const kakaoIdUrl = 'https://kapi.kakao.com/v1/user/access_token_info';
     const kakaoIdOptions = {
       headers: { Authorization: `Bearer ${kakaoToken}` },
     };
-   
+
     const kakaoId = await axios
       .get(kakaoIdUrl, kakaoIdOptions)
       .then((res) => String(res.data.id));
@@ -102,7 +97,7 @@ export class CustomersService {
       create: { provider: Provider.kakao, providerId: kakaoId },
       update: {},
     });
-  
+
     const token = this.createToken(customer);
     return { result: token, message: '카카오 로그인 완료' };
   }
