@@ -11,7 +11,7 @@ import { JwtPayload, sign } from 'jsonwebtoken';
 import * as qs from 'qs';
 import axios from 'axios';
 import { Provider, Customer, Pharmacist } from '@prisma/client';
-import { firstValueFrom } from 'rxjs';
+
 @Injectable()
 export class CustomersService {
   constructor(private prismaService: PrismaService) {}
@@ -82,6 +82,8 @@ export class CustomersService {
     const kakaoToken = await axios
       .post(kakaoTokenUrl, data, kakaoTokenOptions)
       .then((res) => res.data.access_token);
+
+    console.log(kakaoToken);
 
     const kakaoIdUrl = 'https://kapi.kakao.com/v1/user/access_token_info';
     const kakaoIdOptions = {
