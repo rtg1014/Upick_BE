@@ -75,20 +75,20 @@ export class CustomersService {
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
       },
     };
-
+    console.log('0');
     const kakaoToken = await axios
       .post('https://kauth.kakao.com/oauth/token', data, kakaoTokenOptions)
       .then((res) => res.data.access_token);
-
+    console.log('1');
     const kakaoIdUrl = 'https://kapi.kakao.com/v1/user/access_token_info';
     const kakaoIdOptions = {
       headers: { Authorization: `Bearer ${kakaoToken}` },
     };
-
+    console.log('2');
     const kakaoId = await axios
       .get(kakaoIdUrl, kakaoIdOptions)
       .then((res) => String(res.data.id));
-
+    console.log('3');
     const customer = await this.prismaService.customer.upsert({
       where: {
         provider_providerId: { provider: Provider.kakao, providerId: kakaoId },
@@ -96,7 +96,7 @@ export class CustomersService {
       create: { provider: Provider.kakao, providerId: kakaoId },
       update: {},
     });
-
+    console.log('4');
     const token = this.createToken(customer);
     return { result: token, message: '카카오 로그인 완료' };
   }
