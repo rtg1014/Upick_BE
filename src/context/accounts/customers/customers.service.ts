@@ -69,7 +69,7 @@ export class CustomersService {
       grant_type: 'authorization_code',
       client_id: client_id,
       redirect_uri: redirectUri,
-      _code,
+      code: _code,
     });
     const kakaoTokenOptions = {
       headers: {
