@@ -275,6 +275,9 @@ export class MerchandisesService {
         MerchandiseLikes: {
           select: { customer: { select: { _count: true } } },
         },
+        MerchandiseToIngredient: {
+          select: { quantity: true, ingredient: true, ingredientId: true },
+        },
       },
     });
 
@@ -334,15 +337,15 @@ export class MerchandisesService {
             name: true,
           },
         },
-        MerchandiseToIngredient:{
-          select:{
-            ingredient:{
-              select:{
-                name:true
-              }
-            }
-          }
-        }
+        MerchandiseToIngredient: {
+          select: {
+            ingredient: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -400,15 +403,15 @@ export class MerchandisesService {
           },
         },
         Image: { select: { url: true } },
-        MerchandiseToIngredient:{
-          select:{
-            ingredient:{
-              select:{
-                name:true
-              }
-            }
-          }
-        }
+        MerchandiseToIngredient: {
+          select: {
+            ingredient: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -462,15 +465,15 @@ export class MerchandisesService {
             name: true,
           },
         },
-        MerchandiseToIngredient:{
-          select:{
-            ingredient:{
-              select:{
-                name:true
-              }
-            }
-          }
-        }
+        MerchandiseToIngredient: {
+          select: {
+            ingredient: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -532,15 +535,15 @@ export class MerchandisesService {
             name: true,
           },
         },
-        MerchandiseToIngredient:{
-          select:{
-            ingredient:{
-              select:{
-                name:true
-              }
-            }
-          }
-        }
+        MerchandiseToIngredient: {
+          select: {
+            ingredient: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -621,15 +624,15 @@ export class MerchandisesService {
         company: {
           select: { name: true },
         },
-        MerchandiseToIngredient:{
-          select:{
-            ingredient:{
-              select:{
-                name:true
-              }
-            }
-          }
-        }
+        MerchandiseToIngredient: {
+          select: {
+            ingredient: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -676,7 +679,7 @@ export class MerchandisesService {
           select: {
             name: true,
           },
-        },  
+        },
       },
     });
 
