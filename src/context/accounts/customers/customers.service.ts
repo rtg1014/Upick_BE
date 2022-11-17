@@ -80,11 +80,10 @@ export class CustomersService {
 
     const kakaoToken = await axios
       .post(kakaoTokenUrl, {}, kakaoTokenOptions)
+      .then((res) => res.data.access_token)
       .catch((e) => {
-        console.log(1111, e);
-        console.log(2222, e.response);
+        console.log('카카오 토큰 발급 에러', e);
       });
-    // .then((res) => res.data.access_token);
 
     console.log(kakaoToken);
 
