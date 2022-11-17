@@ -63,7 +63,7 @@ export class CustomersService {
 
     if (!code || !redirectUri) throw new Error('?');
     const client_id = process.env.CLIENT_ID;
-    const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
+    //const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
     const data = qs.stringify({
       grant_type: 'authorization_code',
       client_id: client_id,
@@ -76,9 +76,8 @@ export class CustomersService {
       },
     };
 
-    console.log(data, '22');
     const kakaoToken = await axios
-      .post(kakaoTokenUrl, data, kakaoTokenOptions)
+      .post('https://kauth.kakao.com/oauth/token', data, kakaoTokenOptions)
       .then((res) => res.data.access_token);
 
     const kakaoIdUrl = 'https://kapi.kakao.com/v1/user/access_token_info';
