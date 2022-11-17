@@ -63,23 +63,23 @@ export class CustomersService {
     const redirectUri = process.env.REDIRECT_URI;
 
     if (!_code || !redirectUri) throw new Error('?');
-    const kakaoTokenUrl = 'https://kauth.kakao.com/oauth/token';
-    const data = qs.stringify({
-      grant_type: 'authorization_code',
-      client_id: '0ff7b4e882fe18cced888f1439ca41e2',
-      redirect_uri: redirectUri,
-      code: _code,
-    });
+    const kakaoTokenUrl = `https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id=0ff7b4e882fe18cced888f1439ca41e2&redirect_uri=${redirectUri}&code=${_code}`;
+    // const data = qs.stringify({
+    //   grant_type: 'authorization_code',
+    //   client_id: '0ff7b4e882fe18cced888f1439ca41e2',
+    //   redirect_uri: redirectUri,
+    //   code: _code,
+    // });
     const kakaoTokenOptions = {
       headers: {
         'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
       },
     };
 
-    console.log(kakaoTokenUrl, data, kakaoTokenOptions);
+    // console.log(kakaoTokenUrl, data, kakaoTokenOptions);
 
     const kakaoToken = await axios
-      .post(kakaoTokenUrl, data, kakaoTokenOptions)
+      .post(kakaoTokenUrl, {}, kakaoTokenOptions)
       .catch((e) => {
         console.log(1111, e);
         console.log(2222, e.response);
