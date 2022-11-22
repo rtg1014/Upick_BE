@@ -59,7 +59,7 @@ export class CustomersController {
     console.log(_code);
     console.log(typeof _code);
 
-    const { result } = await this.customersService.signInKakao(_code);
+    const { result } = await this.customersService.signInKakao(code);
 
     response.cookie('accessToken', result, { domain: COOKIE_DOMAIN });
 
