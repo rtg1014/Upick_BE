@@ -63,6 +63,8 @@ export class CustomersService {
     const redirectUri = process.env.REDIRECT_URI;
     const client_id = process.env.CLIENT_ID;
 
+    console.log(code);
+
     if (!code || !redirectUri) throw new Error('?');
     const kakaoTokenUrl = `https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id=${client_id}&redirect_uri=${redirectUri}&code=${code}`;
 
