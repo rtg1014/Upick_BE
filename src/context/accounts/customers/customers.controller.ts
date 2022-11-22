@@ -55,7 +55,6 @@ export class CustomersController {
     //@Body() code: string,
     @Query() code: string,
   ) {
-    console.log(code);
     const _code = Object.keys(code)[0];
     console.log(_code);
     console.log(typeof _code);
