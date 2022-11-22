@@ -53,7 +53,6 @@ export class CustomersController {
   async signInKakao(
     @Res({ passthrough: true }) response: Response,
     @Body() code: string,
-    // @Query('code') code: string,
   ) {
     const _code = Object.keys(code)[0];
     console.log(_code);
