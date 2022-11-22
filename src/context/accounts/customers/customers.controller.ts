@@ -54,7 +54,6 @@ export class CustomersController {
     @Res({ passthrough: true }) response: Response,
     @Body() code: string,
   ) {
-    console.log(code);
     const _code = Object.keys(code)[0];
     console.log(_code);
     console.log(typeof _code);
