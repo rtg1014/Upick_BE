@@ -83,9 +83,6 @@ export class CustomersService {
       });
 
 
-    const kakaoToken = await axios.post(kakaoTokenUrl);
-    const access_token: string = kakaoToken.data.access_token;
-
     const kakaoIdUrl = 'https://kapi.kakao.com/v2/user/me';
     const kakaoIdOptions = {
       headers: { Authorization: `Bearer ${kakaoToken}` },
