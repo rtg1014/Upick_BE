@@ -74,6 +74,7 @@ export class CustomersService {
     //   },
     // };
 
+
     const kakaoToken = await axios
       .post(kakaoTokenUrl)
       .then((res) => res.data.access_token)
@@ -81,9 +82,11 @@ export class CustomersService {
         console.log('카카오 토큰 발급 에러', e);
       });
 
-    console.log(kakaoToken);
 
-    const kakaoIdUrl = 'https://kapi.kakao.com/v1/user/access_token_info';
+    const kakaoToken = await axios.post(kakaoTokenUrl);
+    const access_token: string = kakaoToken.data.access_token;
+
+    const kakaoIdUrl = 'https://kapi.kakao.com/v2/user/me';
     const kakaoIdOptions = {
       headers: { Authorization: `Bearer ${kakaoToken}` },
     };
