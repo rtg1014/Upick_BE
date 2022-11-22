@@ -68,24 +68,27 @@ export class CustomersService {
     if (!_code || !redirectUri) throw new Error('?');
     const kakaoTokenUrl = `https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id=${client_id}&redirect_uri=${redirectUri}&code=${_code}`;
 
-    const kakaoTokenOptions = {
-      headers: {
-        'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-      },
-    };
+    // const kakaoTokenOptions = {
+    //   headers: {
+    //     'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+    //   },
+    // };
 
-    const kakaoToken = await axios
-      .post(kakaoTokenUrl, {}, kakaoTokenOptions)
-      .then((res) => res.data.access_token)
-      .catch((e) => {
-        console.log('카카오 토큰 발급 에러', e);
-      });
+    // const kakaoToken = await axios
+    //   .post(kakaoTokenUrl, {}, kakaoTokenOptions)
+    //   .then((res) => res.data.access_token)
+    //   .catch((e) => {
+    //     console.log('카카오 토큰 발급 에러', e);
+    //   });
 
-    console.log(kakaoToken);
+    // console.log(kakaoToken);
+
+    const kakaoToken = await axios.post(kakaoTokenUrl);
+    const access_token: string = kakaoToken.data.access_token;
 
     const kakaoIdUrl = 'https://kapi.kakao.com/v2/user/me';
     const kakaoIdOptions = {
-      headers: { Authorization: `Bearer ${kakaoToken}` },
+      headers: { Authorization: `Bearer ${access_token}` },
     };
 
     const kakaoId = await axios
