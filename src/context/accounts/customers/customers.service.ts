@@ -74,17 +74,14 @@ export class CustomersService {
     //   },
     // };
 
-    // const kakaoToken = await axios
-    //   .post(kakaoTokenUrl, {}, kakaoTokenOptions)
-    //   .then((res) => res.data.access_token)
-    //   .catch((e) => {
-    //     console.log('카카오 토큰 발급 에러', e);
-    //   });
+    const kakaoToken = await axios
+      .post(kakaoTokenUrl)
+      .then((res) => res.data.access_token)
+      .catch((e) => {
+        console.log('카카오 토큰 발급 에러', e);
+      });
 
-    // console.log(kakaoToken);
-
-    const kakaoToken = await axios.post(kakaoTokenUrl);
-    const access_token: string = kakaoToken.data.access_token;
+    console.log(kakaoToken);
 
     const kakaoIdUrl = 'https://kapi.kakao.com/v1/user/access_token_info';
     const kakaoIdOptions = {
