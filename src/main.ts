@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { SocketIoAdapter } from './context/chattings/adapters/socket.adapters';
 import * as cookieParser from 'cookie-parser';
 import * as fs from 'fs';
 
@@ -29,6 +30,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
+  app.useWebSocketAdapter(new SocketIoAdapter(app));
   await app.listen(3000);
 }
 bootstrap();
