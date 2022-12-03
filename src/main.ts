@@ -3,9 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
-import { join } from 'path';
-import { SocketIoAdapter } from '../src/context/chattings/adapters/socket-io.adapters';
-import { WsAdapter } from '@nestjs/platform-ws';
+import { SocketIoAdapter } from './context/chattings/adapters/socket.adapters';
 import * as cookieParser from 'cookie-parser';
 import * as fs from 'fs';
 

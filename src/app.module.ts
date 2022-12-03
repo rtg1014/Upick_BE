@@ -10,6 +10,7 @@ import { RolesGuard } from './guard/role.guard';
 import { InjectAccountMiddleware } from './middlewares/injectAccount.middleware';
 import { CommonModule } from './context/common/common.module';
 import { S3Module } from './s3/s3.module';
+import { ChatModule } from './context/chattings/chat/chat.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { S3Module } from './s3/s3.module';
     BoardsModule,
     CommonModule,
     S3Module,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: RolesGuard }],
