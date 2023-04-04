@@ -1,3 +1,7 @@
+유픽 소개영상
+[유픽 소개 영상](https://velog.velcdn.com/images/mython/post/2dba3487-8e15-43f3-b4d8-7174ded2f884/image.mp4)
+
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
